@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+
+    function isAuth() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(data) {
+      return request.auth.uid == data.userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // Prevent writes with unknown/dangerous content
+    function safeString(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    // ── Validators ─────────────────────────────────────────────────────────────
+
+    function validExpense() {
+      let d = incoming();
+      return d.userId == request.auth.uid
+        && d.type in ['spesa', 'entrata']
+        && d.amount is number
+        && d.amount > 0
+        && d.amount <= 999999
+        && safeString(d.category, 50)
+        && safeString(d.date, 10)
+        && d.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (!('description' in d) || safeString(d.description, 300))
+        && (!('recurringId' in d) || safeString(d.recurringId, 100));
+    }
+
+    function validTask() {
+      let d = incoming();
+      return d.userId == request.auth.uid
+        && safeString(d.title, 200)
+        && d.title.size() > 0
+        && safeString(d.category, 50)
+        && d.priority in ['alta', 'media', 'bassa']
+        && d.completed is bool
+        && (!('deadline' in d) || safeString(d.deadline, 10))
+        && (!('notes' in d) || safeString(d.notes, 500))
+        && (!('recurringId' in d) || safeString(d.recurringId, 100));
+    }
+
+    function validRecurring() {
+      let d = incoming();
+      return d.userId == request.auth.uid
+        && d.kind in ['expense', 'task']
+        && d.frequency in ['monthly']
+        && d.dayOfMonth is int
+        && d.dayOfMonth >= 1
+        && d.dayOfMonth <= 31
+        && d.active is bool
+        && (!('amount' in d) || (d.amount is number && d.amount > 0 && d.amount <= 999999))
+        && (!('title' in d) || safeString(d.title, 200))
+        && (!('description' in d) || safeString(d.description, 300))
+        && (!('category' in d) || safeString(d.category, 50));
+    }
+
+    // ── Collections ────────────────────────────────────────────────────────────
+
+    match /expenses/{id} {
+      allow read:   if isAuth() && isOwner(resource.data);
+      allow create: if isAuth() && validExpense();
+      allow update: if isAuth() && isOwner(resource.data) && validExpense();
+      allow delete: if isAuth() && isOwner(resource.data);
+    }
+
+    match /tasks/{id} {
+      allow read:   if isAuth() && isOwner(resource.data);
+      allow create: if isAuth() && validTask();
+      allow update: if isAuth() && isOwner(resource.data) && validTask();
+      allow delete: if isAuth() && isOwner(resource.data);
+    }
+
+    match /recurring/{id} {
+      allow read:   if isAuth() && isOwner(resource.data);
+      allow create: if isAuth() && validRecurring();
+      allow update: if isAuth() && isOwner(resource.data) && validRecurring();
+      allow delete: if isAuth() && isOwner(resource.data);
+    }
+
+    // Nega tutto il resto
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

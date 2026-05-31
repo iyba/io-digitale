@@ -1,0 +1,76 @@
+const TABS = [
+  {
+    id: 'dashboard', label: 'Home',
+    icon: (active) => (
+      <svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.2 : 1.6}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+  },
+  {
+    id: 'tasks', label: 'Impegni',
+    icon: (active) => (
+      <svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.2 : 1.6}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    id: 'calendar', label: 'Calendario',
+    icon: (active) => (
+      <svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.2 : 1.6}>
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <line x1="16" y1="2" x2="16" y2="6" strokeLinecap="round"/>
+        <line x1="8" y1="2" x2="8" y2="6" strokeLinecap="round"/>
+        <line x1="3" y1="10" x2="21" y2="10" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'finance', label: 'Finanze',
+    icon: (active) => (
+      <svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.2 : 1.6}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+]
+
+export default function Navbar({ tab, setTab }) {
+  return (
+    <nav style={{
+      position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+      width: '100%', maxWidth: 600,
+      background: 'rgba(7,7,15,0.88)',
+      backdropFilter: 'blur(24px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+      borderTop: '1px solid rgba(255,255,255,0.07)',
+      display: 'flex', alignItems: 'stretch',
+      paddingBottom: 'env(safe-area-inset-bottom)',
+      zIndex: 50,
+    }}>
+      {TABS.map(t => {
+        const active = tab === t.id
+        return (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{
+            flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 2, padding: '0.55rem 0.25rem',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: active ? '#a78bfa' : 'rgba(241,241,248,0.3)',
+            transition: 'color 0.2s', position: 'relative',
+          }}>
+            {active && (
+              <span style={{
+                position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                width: 28, height: 2, borderRadius: '0 0 2px 2px',
+                background: 'linear-gradient(90deg, #7c3aed, #a78bfa)',
+              }} />
+            )}
+            {t.icon(active)}
+            <span style={{ fontSize: '0.62rem', fontWeight: active ? 600 : 400, letterSpacing: '0.01em' }}>{t.label}</span>
+          </button>
+        )
+      })}
+    </nav>
+  )
+}
