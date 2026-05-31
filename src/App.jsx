@@ -13,6 +13,7 @@ import AddTaskModal from './components/AddTaskModal'
 import AddExpenseModal from './components/AddExpenseModal'
 import { parseVoiceAuto } from './utils/voiceParser'
 import { generateRecurringInstances } from './utils/recurringManager'
+import { requestPushPermission, savePushTokenIfGranted } from './hooks/usePushNotifications'
 
 const DEMO_USER = { uid: 'demo', displayName: 'Andriy', photoURL: null }
 
@@ -29,14 +30,52 @@ export default function App() {
   const [lastSavedId, setLastSavedId] = useState(null)   // id for undo
   const [lastSavedCol, setLastSavedCol] = useState(null)  // collection for undo
 
+  // Action Button / Shortcut: voice text passed via ?voice= URL parameter
+  const [pendingVoice, setPendingVoice] = useState(null)
+
+  // Push notifications banner
+  const [showPushBanner, setShowPushBanner] = useState(false)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const v = params.get('voice')
+    if (v && v.trim()) {
+      window.history.replaceState({}, '', '/')
+      setPendingVoice(v.trim())
+    }
+  }, [])
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u)
       setLoading(false)
-      if (u) generateRecurringInstances(u.uid).catch(console.error)
+      if (u) {
+        generateRecurringInstances(u.uid).catch(console.error)
+        savePushTokenIfGranted(u.uid)
+      }
     })
     return unsub
   }, [])
+
+  useEffect(() => {
+    if (!user || isDemo || !('Notification' in window)) return
+    if (Notification.permission === 'granted') return
+    if (Notification.permission === 'denied') return
+    if (localStorage.getItem('pushBannerDismissed')) return
+    setShowPushBanner(true)
+  }, [user, isDemo])
+
+  async function handleEnablePush() {
+    const ok = await requestPushPermission(user.uid)
+    setShowPushBanner(false)
+    localStorage.setItem('pushBannerDismissed', '1')
+    if (!ok) alert('Notifiche non concesse. Puoi attivarle dalle impostazioni del browser.')
+  }
+
+  function dismissPushBanner() {
+    setShowPushBanner(false)
+    localStorage.setItem('pushBannerDismissed', '1')
+  }
 
   // ── Voice auto-save ──────────────────────────────────────────────────────────
   const handleVoiceResult = useCallback(async (rawText) => {
@@ -68,6 +107,14 @@ export default function App() {
       else setExpenseModal({ voice: rawText })
     }
   }, [user, isDemo])
+
+  // Process ?voice= URL param once auth is ready (Action Button / iOS Shortcut flow)
+  useEffect(() => {
+    if (!loading && user && !isDemo && pendingVoice) {
+      handleVoiceResult(pendingVoice)
+      setPendingVoice(null)
+    }
+  }, [loading, user, isDemo, pendingVoice, handleVoiceResult])
 
   async function handleVoiceUndo() {
     if (lastSavedId && lastSavedCol && !isDemo) {
@@ -131,6 +178,20 @@ export default function App() {
         <div style={{ background: 'rgba(99,102,241,0.12)', borderBottom: '1px solid rgba(99,102,241,0.25)', padding: '0.5rem 1rem', textAlign: 'center', fontSize: '0.78rem', color: '#a5b4fc' }}>
           🎭 Modalità demo — la voce apre i form, i dati non vengono salvati
           <button onClick={exitDemo} style={{ marginLeft: '0.75rem', background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600 }}>Esci</button>
+        </div>
+      )}
+
+      {showPushBanner && (
+        <div style={{ background: 'rgba(167,139,250,0.1)', borderBottom: '1px solid rgba(167,139,250,0.18)', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+          <span style={{ color: '#c4b5fd', fontSize: '0.78rem' }}>🔔 Attiva promemoria per le scadenze</span>
+          <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+            <button onClick={handleEnablePush} style={{ background: '#7c3aed', border: 'none', color: 'white', borderRadius: '0.5rem', padding: '0.25rem 0.75rem', cursor: 'pointer', fontWeight: 600, fontSize: '0.75rem' }}>
+              Attiva
+            </button>
+            <button onClick={dismissPushBanner} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}>
+              ✕
+            </button>
+          </div>
         </div>
       )}
 

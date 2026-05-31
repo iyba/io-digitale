@@ -88,6 +88,10 @@ service cloud.firestore {
       allow delete: if isAuth() && isOwner(resource.data);
     }
 
+    match /pushTokens/{uid} {
+      allow read, write: if isAuth() && request.auth.uid == uid;
+    }
+
     // Nega tutto il resto
     match /{document=**} {
       allow read, write: if false;

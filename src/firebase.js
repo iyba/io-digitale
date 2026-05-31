@@ -12,7 +12,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-const app = initializeApp(firebaseConfig)
+export const app = initializeApp(firebaseConfig)
 
 // App Check: verifica che le richieste vengano dalla tua app (non da script/bot).
 // Per attivarlo: Firebase Console → App Check → Registra l'app con reCAPTCHA v3,
