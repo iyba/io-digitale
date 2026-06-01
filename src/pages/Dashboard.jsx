@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useCollection } from '../hooks/useCollection'
 import { useWeather, WMO, outdoorAlert } from '../hooks/useWeather'
-import { format, isToday, isPast, parseISO } from 'date-fns'
+import { format, isToday, isPast, parseISO, differenceInCalendarDays } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 const CAT_COLORS = {
@@ -9,15 +9,17 @@ const CAT_COLORS = {
   Famiglia: '#f472b6', Personale: '#c084fc', Altro: '#94a3b8',
 }
 
-const EXP_ICONS = {
-  Casa: '🏠', Cibo: '🍕', Moto: '🏍️', Macchina: '🚗', Personale: '🧴',
-  Viaggi: '✈️', Svago: '🎭', Stipendio: '💼', Freelance: '💻',
-  Investimenti: '📈', Regalo: '🎁', Rimborso: '↩️', Altro: '📦',
+function relLabel(deadline) {
+  const d = parseISO(deadline)
+  const diff = differenceInCalendarDays(d, new Date())
+  if (diff <= 0) return { text: 'Oggi', color: '#fb923c' }
+  if (diff === 1) return { text: 'Domani', color: '#fbbf24' }
+  if (diff <= 7) return { text: `Tra ${diff} giorni`, color: '#a78bfa' }
+  return { text: format(d, 'd MMM', { locale: it }), color: 'rgba(var(--text-rgb),0.45)' }
 }
 
-export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, onEditExpense, onSignOut }) {
+export default function Dashboard({ user, onNewTask, onEditTask, onSignOut }) {
   const { items: tasks, update: updateTask } = useCollection('tasks', user.uid)
-  const { items: expenses } = useCollection('expenses', user.uid)
   const { weather, status: weatherStatus, requestWeather } = useWeather()
 
   const now = new Date()
@@ -41,23 +43,10 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
     return tasks
       .filter(t => !t.completed && t.deadline && t.deadline > todayISO)
       .sort((a, b) => a.deadline.localeCompare(b.deadline))
-      .slice(0, 5)
+      .slice(0, 6)
   }, [tasks])
 
-  const recentExpenses = useMemo(() =>
-    [...expenses].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 4),
-    [expenses])
-
   const pendingCount = tasks.filter(t => !t.completed).length
-  const completedCount = tasks.filter(t => t.completed).length
-
-  const monthExpenses = useMemo(() => {
-    const m = now.getMonth(), y = now.getFullYear()
-    return expenses.filter(e => { const d = new Date(e.date); return d.getMonth() === m && d.getFullYear() === y })
-  }, [expenses])
-  const monthSpend = monthExpenses.filter(e => e.type === 'spesa').reduce((s, e) => s + e.amount, 0)
-  const monthIncome = monthExpenses.filter(e => e.type === 'entrata').reduce((s, e) => s + e.amount, 0)
-  const saldo = monthIncome - monthSpend
 
   const wCurrent = weather ? (WMO[weather.current.code] ?? WMO[0]) : null
   const alert = weather ? outdoorAlert(weather.current.code, weather.today.rainProb) : null
@@ -67,15 +56,15 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(79,46,220,0.22) 0%, rgba(124,58,237,0.12) 60%, transparent 100%)',
-        borderRadius: '1.5rem', border: '1px solid rgba(124,58,237,0.2)',
+        background: 'linear-gradient(135deg, rgba(99,72,230,0.28) 0%, rgba(124,58,237,0.16) 60%, transparent 100%)',
+        borderRadius: '1.5rem', border: '1px solid rgba(124,58,237,0.25)',
         padding: '1.125rem', marginTop: '0.25rem', position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: -50, right: -30, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.3), transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -50, right: -30, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.35), transparent 70%)', pointerEvents: 'none' }} />
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
           <div>
-            <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.45)', fontSize: '0.76rem', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 500 }}>
+            <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.5)', fontSize: '0.76rem', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 500 }}>
               {format(now, 'EEEE, d MMMM', { locale: it })}
             </p>
             <h1 style={{ margin: '0.2rem 0 0', fontSize: '1.5rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
@@ -85,12 +74,11 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
             <button onClick={onSignOut} style={{
-              background: 'rgba(var(--surface-rgb),0.08)', border: '1px solid var(--border)',
-              borderRadius: '0.75rem', padding: '0.35rem 0.7rem', color: 'rgba(var(--text-rgb),0.45)',
+              background: 'rgba(var(--surface-rgb),0.1)', border: '1px solid var(--border)',
+              borderRadius: '0.75rem', padding: '0.35rem 0.7rem', color: 'rgba(var(--text-rgb),0.5)',
               cursor: 'pointer', fontSize: '0.72rem', fontWeight: 500,
             }}>Esci</button>
 
-            {/* Mini meteo */}
             {weatherStatus === 'ok' && weather ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.82rem', color: 'rgba(var(--text-rgb),0.7)', fontWeight: 600 }}>
                 <span style={{ fontSize: '1rem' }}>{wCurrent.icon}</span>
@@ -105,16 +93,15 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
           </div>
         </div>
 
-        {/* Mini stats */}
+        {/* Mini stats — solo impegni */}
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', position: 'relative' }}>
           <MiniStat value={pendingCount} label="da fare" color="#a78bfa" />
           <Sep />
-          <MiniStat value={completedCount} label="completati" color="#4ade80" />
+          <MiniStat value={todayTasks.length} label="oggi" color="#4ade80" />
           <Sep />
-          <MiniStat value={`€${saldo.toFixed(0)}`} label="saldo mese" color={saldo >= 0 ? '#4ade80' : '#ef4444'} />
+          <MiniStat value={overdueTasks.length} label="scaduti" color={overdueTasks.length ? '#ef4444' : 'rgba(var(--text-rgb),0.5)'} />
         </div>
 
-        {/* Avviso meteo (solo se pioggia — utile per attività all'aperto) */}
         {alert && alert.level === 'bad' && (
           <div style={{ marginTop: '0.75rem', position: 'relative', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.22)', borderRadius: '0.75rem', padding: '0.5rem 0.75rem' }}>
             <p style={{ margin: 0, fontSize: '0.78rem', color: '#fca5a5', fontWeight: 500 }}>{alert.msg}</p>
@@ -122,14 +109,10 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
         )}
       </div>
 
-      {/* OGGI */}
-      <SectionCard
-        icon="🎯" title="Oggi"
-        badge={focusTasks.length || null}
-        action="+ Impegno" onAction={onNewTask}
-      >
+      {/* OGGI — impegni giornalieri */}
+      <SectionCard icon="🎯" title="Oggi" badge={focusTasks.length || null} action="+ Impegno" onAction={onNewTask}>
         {focusTasks.length === 0 ? (
-          <Empty icon="✅" text="Nessun impegno per oggi — ottimo!" />
+          <Empty icon="✅" text="Nessun impegno per oggi" />
         ) : (
           focusTasks.map(t => (
             <FocusRow key={t.id} task={t}
@@ -139,27 +122,14 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
         )}
       </SectionCard>
 
-      {/* PROSSIMI */}
-      {upcomingTasks.length > 0 && (
-        <SectionCard icon="📆" title="Prossimi impegni">
-          {upcomingTasks.map(t => <UpcomingRow key={t.id} task={t} onClick={() => onEditTask(t)} />)}
-        </SectionCard>
-      )}
-
-      {/* SPESE RECENTI */}
-      <SectionCard icon="💸" title="Spese recenti" action="+ Spesa" onAction={onNewExpense}>
-        {recentExpenses.length === 0 ? (
-          <Empty icon="🧾" text="Nessuna spesa registrata" />
+      {/* SCADENZE RAVVICINATE */}
+      <SectionCard icon="⏰" title="Prossime scadenze">
+        {upcomingTasks.length === 0 ? (
+          <Empty icon="🗓️" text="Nessuna scadenza in arrivo" />
         ) : (
-          recentExpenses.map(e => <ExpenseRow key={e.id} expense={e} onClick={() => onEditExpense(e)} />)
+          upcomingTasks.map(t => <UpcomingRow key={t.id} task={t} onClick={() => onEditTask(t)} />)
         )}
       </SectionCard>
-
-      {/* QUICK ACTIONS */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-        <QuickBtn icon="📋" label="Impegno" sub="Aggiungi task" glow="rgba(124,58,237,0.3)" onClick={onNewTask} />
-        <QuickBtn icon="💸" label="Spesa" sub="Registra spesa" glow="rgba(234,88,12,0.3)" onClick={onNewExpense} />
-      </div>
 
     </div>
   )
@@ -168,8 +138,8 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 function MiniStat({ value, label, color }) {
   return (
     <div style={{ flex: 1, textAlign: 'center' }}>
-      <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color, letterSpacing: '-0.02em' }}>{value}</p>
-      <p style={{ margin: '0.1rem 0 0', fontSize: '0.64rem', color: 'rgba(var(--text-rgb),0.35)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}>{label}</p>
+      <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color, letterSpacing: '-0.02em' }}>{value}</p>
+      <p style={{ margin: '0.1rem 0 0', fontSize: '0.64rem', color: 'rgba(var(--text-rgb),0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}>{label}</p>
     </div>
   )
 }
@@ -213,7 +183,7 @@ function FocusRow({ task, onCheck, onEdit }) {
       <div onClick={onEdit} style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}>
         <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</p>
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginTop: '0.12rem' }}>
-          <span style={{ fontSize: '0.67rem', color: 'rgba(var(--text-rgb),0.35)' }}>{task.category}</span>
+          <span style={{ fontSize: '0.67rem', color: 'rgba(var(--text-rgb),0.4)' }}>{task.category}</span>
           {isOver && <span style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700 }}>• Scaduto</span>}
           {isTod && <span style={{ fontSize: '0.65rem', color: '#fb923c', fontWeight: 700 }}>• Oggi</span>}
         </div>
@@ -223,61 +193,22 @@ function FocusRow({ task, onCheck, onEdit }) {
 }
 
 function UpcomingRow({ task, onClick }) {
-  const deadline = task.deadline ? parseISO(task.deadline) : null
   const col = CAT_COLORS[task.category] || CAT_COLORS.Altro
+  const rl = relLabel(task.deadline)
   return (
-    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.7rem 1rem', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
       <div style={{ width: 8, height: 8, borderRadius: '50%', background: col, flexShrink: 0 }} />
       <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
-      <span style={{ fontSize: '0.73rem', fontWeight: 600, color: 'rgba(var(--text-rgb),0.45)', flexShrink: 0 }}>
-        {deadline ? format(deadline, 'd MMM', { locale: it }) : ''}
-      </span>
-    </div>
-  )
-}
-
-function ExpenseRow({ expense, onClick }) {
-  return (
-    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.7rem 1rem', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
-      <div style={{
-        width: 34, height: 34, borderRadius: '0.625rem', flexShrink: 0,
-        background: expense.type === 'entrata' ? 'rgba(16,185,129,0.12)' : 'rgba(251,146,60,0.12)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem',
-      }}>
-        {EXP_ICONS[expense.category] || '📦'}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {expense.description || expense.category}
-        </p>
-        <p style={{ margin: '0.1rem 0 0', fontSize: '0.7rem', color: 'rgba(var(--text-rgb),0.35)' }}>{expense.category} · {expense.date}</p>
-      </div>
-      <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem', color: expense.type === 'entrata' ? '#4ade80' : '#fb923c', flexShrink: 0 }}>
-        {expense.type === 'entrata' ? '+' : '-'}€{Number(expense.amount).toFixed(2)}
-      </p>
+      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: rl.color, flexShrink: 0 }}>{rl.text}</span>
     </div>
   )
 }
 
 function Empty({ icon, text }) {
   return (
-    <div style={{ padding: '1.75rem 1rem', textAlign: 'center' }}>
+    <div style={{ padding: '1.6rem 1rem', textAlign: 'center' }}>
       <p style={{ margin: '0 0 0.375rem', fontSize: '1.4rem' }}>{icon}</p>
-      <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.3)', fontSize: '0.85rem' }}>{text}</p>
+      <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.35)', fontSize: '0.85rem' }}>{text}</p>
     </div>
-  )
-}
-
-function QuickBtn({ icon, label, sub, glow, onClick }) {
-  return (
-    <button onClick={onClick} style={{
-      background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '1.125rem',
-      padding: '1rem 0.875rem', cursor: 'pointer', textAlign: 'left', position: 'relative', overflow: 'hidden',
-    }}>
-      <div style={{ position: 'absolute', bottom: -10, right: -10, width: 50, height: 50, borderRadius: '50%', background: glow, filter: 'blur(16px)', pointerEvents: 'none' }} />
-      <p style={{ margin: '0 0 0.3rem', fontSize: '1.3rem' }}>{icon}</p>
-      <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--text)' }}>{label}</p>
-      <p style={{ margin: '0.1rem 0 0', fontSize: '0.7rem', color: 'rgba(var(--text-rgb),0.35)' }}>{sub}</p>
-    </button>
   )
 }

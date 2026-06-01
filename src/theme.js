@@ -8,7 +8,7 @@ export function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme)
   // aggiorna la barra di stato iOS / colore tema
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.setAttribute('content', theme === 'light' ? '#f3f4f8' : '#07070f')
+  if (meta) meta.setAttribute('content', theme === 'light' ? '#eef0f6' : '#1b1b26')
 }
 
 export function setTheme(theme) {
