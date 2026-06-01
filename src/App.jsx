@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { auth, db } from './firebase'
-import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth'
 import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore'
 import Dashboard from './pages/Dashboard'
 import Tasks from './pages/Tasks'
 import Finance from './pages/Finance'
 import Calendar from './pages/Calendar'
+import Settings from './pages/Settings'
 import Navbar from './components/Navbar'
 import VoiceButton from './components/VoiceButton'
 import VoiceConfirm from './components/VoiceConfirm'
@@ -23,7 +24,10 @@ export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [taskModal, setTaskModal] = useState(null)
   const [expenseModal, setExpenseModal] = useState(null)
-  const [isDemo, setIsDemo] = useState(false)
+  const [isDemo] = useState(false)
+  const [authError, setAuthError] = useState(null)
+  const [email, setEmail] = useState('andriy99.an@gmail.com')
+  const [password, setPassword] = useState('')
 
   // Voice auto-save state
   const [voiceParsed, setVoiceParsed] = useState(null)   // parsed result shown in VoiceConfirm
@@ -32,6 +36,9 @@ export default function App() {
 
   // Action Button / Shortcut: voice text passed via ?voice= URL parameter
   const [pendingVoice, setPendingVoice] = useState(null)
+
+  // Action Button: ?listen=1 → apri direttamente la modalità ascolto in-app
+  const [autoListen, setAutoListen] = useState(false)
 
   // Push notifications banner
   const [showPushBanner, setShowPushBanner] = useState(false)
@@ -43,10 +50,17 @@ export default function App() {
       window.history.replaceState({}, '', '/')
       setPendingVoice(v.trim())
     }
+    if (params.get('listen') === '1') {
+      window.history.replaceState({}, '', '/')
+      setAutoListen(true)
+    }
   }, [])
 
   useEffect(() => {
+    const failsafe = setTimeout(() => setLoading(false), 5000)
+
     const unsub = onAuthStateChanged(auth, (u) => {
+      clearTimeout(failsafe)
       setUser(u)
       setLoading(false)
       if (u) {
@@ -54,7 +68,8 @@ export default function App() {
         savePushTokenIfGranted(u.uid)
       }
     })
-    return unsub
+
+    return () => { clearTimeout(failsafe); unsub() }
   }, [])
 
   useEffect(() => {
@@ -134,12 +149,19 @@ export default function App() {
 
   // ── Auth ──────────────────────────────────────────────────────────────────────
   async function login() {
-    const provider = new GoogleAuthProvider()
-    await signInWithPopup(auth, provider)
+    try {
+      setAuthError(null)
+      await signInWithEmailAndPassword(auth, email, password)
+    } catch (e) {
+      if (['auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials'].includes(e.code)) {
+        setAuthError('Codice errato')
+      } else if (['auth/user-not-found', 'auth/invalid-email'].includes(e.code)) {
+        setAuthError('Email non trovata')
+      } else {
+        setAuthError('Errore: ' + e.code)
+      }
+    }
   }
-
-  function enterDemo() { setIsDemo(true); setUser(DEMO_USER) }
-  function exitDemo()  { setIsDemo(false); setUser(null) }
 
   if (loading) {
     return (
@@ -152,22 +174,52 @@ export default function App() {
 
   if (!user) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100svh', background: '#07070f', padding: '2rem', textAlign: 'center', gap: '1.5rem' }}>
-        <div style={{ fontSize: '4rem' }}>🧠</div>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.03em' }}>Il Mio Io Digitale</h1>
-          <p style={{ color: 'rgba(241,241,248,0.45)', margin: '0.5rem 0 0', maxWidth: 300, lineHeight: 1.5 }}>
-            Impegni, scadenze e finanze — con input vocale, ovunque tu sia.
-          </p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100svh', background: '#07070f', padding: '2rem', gap: '1.75rem' }}>
+        <div style={{ fontSize: '3.5rem' }}>🧠</div>
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ margin: 0, fontSize: '1.9rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.03em' }}>Il Mio Io Digitale</h1>
+          <p style={{ color: 'rgba(241,241,248,0.35)', margin: '0.4rem 0 0', fontSize: '0.875rem' }}>Accesso privato</p>
         </div>
-        <button onClick={login} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'white', color: '#111827', border: 'none', padding: '0.875rem 1.5rem', borderRadius: '0.875rem', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
-          <GoogleIcon />
-          Accedi con Google
-        </button>
-        <button onClick={enterDemo} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.875rem', padding: '0.625rem 1.25rem', color: 'rgba(241,241,248,0.5)', cursor: 'pointer', fontSize: '0.9rem' }}>
-          👁 Vedi demo senza account
-        </button>
-        <p style={{ color: 'rgba(241,241,248,0.2)', fontSize: '0.78rem', margin: 0 }}>Dati privati e sincronizzati su tutti i tuoi dispositivi</p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', maxWidth: 300 }}>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Email"
+            style={{
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '0.875rem', padding: '0.875rem 1rem', color: '#f1f1f8',
+              fontSize: '0.95rem', outline: 'none', width: '100%', boxSizing: 'border-box',
+            }}
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Codice di accesso"
+            onKeyDown={e => e.key === 'Enter' && login()}
+            style={{
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '0.875rem', padding: '0.875rem 1rem', color: '#f1f1f8',
+              fontSize: '0.95rem', outline: 'none', width: '100%', boxSizing: 'border-box',
+            }}
+          />
+          <button onClick={login} style={{
+            background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', border: 'none',
+            borderRadius: '0.875rem', padding: '0.875rem', color: 'white',
+            fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(124,58,237,0.4)',
+          }}>
+            Accedi
+          </button>
+        </div>
+
+        {authError && (
+          <p style={{ color: '#fca5a5', fontSize: '0.8rem', margin: 0, textAlign: 'center' }}>
+            ⚠️ {authError}
+          </p>
+        )}
       </div>
     )
   }
@@ -181,19 +233,6 @@ export default function App() {
         </div>
       )}
 
-      {showPushBanner && (
-        <div style={{ background: 'rgba(167,139,250,0.1)', borderBottom: '1px solid rgba(167,139,250,0.18)', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-          <span style={{ color: '#c4b5fd', fontSize: '0.78rem' }}>🔔 Attiva promemoria per le scadenze</span>
-          <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-            <button onClick={handleEnablePush} style={{ background: '#7c3aed', border: 'none', color: 'white', borderRadius: '0.5rem', padding: '0.25rem 0.75rem', cursor: 'pointer', fontWeight: 600, fontSize: '0.75rem' }}>
-              Attiva
-            </button>
-            <button onClick={dismissPushBanner} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}>
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
 
       <main style={{ flex: 1, padding: '1rem', paddingBottom: '6rem', overflowY: 'auto' }}>
         {tab === 'dashboard' && (
@@ -223,10 +262,13 @@ export default function App() {
             onEdit={e => setExpenseModal(e)}
           />
         )}
+        {tab === 'settings' && (
+          <Settings user={user} />
+        )}
       </main>
 
       <Navbar tab={tab} setTab={setTab} />
-      <VoiceButton onResult={handleVoiceResult} />
+      <VoiceButton onResult={handleVoiceResult} autoListen={autoListen} onAutoListenDone={() => setAutoListen(false)} />
 
       {/* Auto-save confirmation toast */}
       {voiceParsed && (

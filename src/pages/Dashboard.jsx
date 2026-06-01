@@ -15,7 +15,7 @@ const CAT_COLORS = {
 
 export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, onSignOut }) {
   const { items: tasks, update: updateTask } = useCollection('tasks', user.uid)
-  const { weather, status: weatherStatus } = useWeather()
+  const { weather, status: weatherStatus, requestWeather } = useWeather()
 
   const now   = new Date()
   const hour  = now.getHours()
@@ -82,10 +82,14 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
           {weatherStatus === 'loading' && (
             <p style={{ margin: 0, color: 'rgba(241,241,248,0.3)', fontSize: '0.82rem' }}>Caricamento meteo…</p>
           )}
-          {weatherStatus === 'denied' && (
-            <p style={{ margin: 0, color: 'rgba(241,241,248,0.25)', fontSize: '0.78rem' }}>
-              📍 Abilita la posizione per il meteo
-            </p>
+          {(weatherStatus === 'idle' || weatherStatus === 'denied' || weatherStatus === 'no-geo') && (
+            <button onClick={requestWeather} style={{
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '0.75rem', padding: '0.4rem 0.75rem', color: 'rgba(241,241,248,0.5)',
+              cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500,
+            }}>
+              📍 Mostra meteo
+            </button>
           )}
           {weatherStatus === 'ok' && weather && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
