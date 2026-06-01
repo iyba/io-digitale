@@ -43,7 +43,7 @@ export default function VoiceConfirm({ parsed, onEdit, onUndo, onDone }) {
       bottom: 'calc(5.5rem + env(safe-area-inset-bottom))',
       left: '50%', transform: 'translateX(-50%)',
       width: 'calc(100% - 2rem)', maxWidth: 380,
-      background: '#0e0e1a',
+      background: 'var(--bg-elev)',
       border: '1px solid rgba(124,58,237,0.35)',
       borderRadius: '1.25rem',
       boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.1)',
@@ -54,7 +54,7 @@ export default function VoiceConfirm({ parsed, onEdit, onUndo, onDone }) {
       <style>{`@keyframes slideUp { from{transform:translateX(-50%) translateY(20px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }`}</style>
 
       {/* Progress bar */}
-      <div style={{ height: 3, background: 'rgba(255,255,255,0.06)' }}>
+      <div style={{ height: 3, background: 'rgba(var(--surface-rgb),0.06)' }}>
         <div style={{
           height: '100%',
           width: `${progress}%`,
@@ -76,7 +76,7 @@ export default function VoiceConfirm({ parsed, onEdit, onUndo, onDone }) {
           }}>
             {isExpense ? (d.type === 'entrata' ? '💰 Entrata' : '💸 Spesa') : '📋 Impegno'}
           </span>
-          <span style={{ fontSize: '0.72rem', color: 'rgba(241,241,248,0.4)', marginLeft: 'auto' }}>
+          <span style={{ fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.4)', marginLeft: 'auto' }}>
             ✅ Salvato
           </span>
         </div>
@@ -87,16 +87,16 @@ export default function VoiceConfirm({ parsed, onEdit, onUndo, onDone }) {
             <p style={{ margin: 0, fontWeight: 800, fontSize: '1.4rem', letterSpacing: '-0.03em', color: d.type === 'entrata' ? '#4ade80' : '#fb923c' }}>
               {d.type === 'entrata' ? '+' : '-'}€{d.amount?.toFixed(2)}
             </p>
-            <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(241,241,248,0.7)' }}>
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(var(--text-rgb),0.7)' }}>
               {d.description || d.category} · {d.date}
             </p>
           </div>
         ) : (
           <div>
-            <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem', color: '#f1f1f8', letterSpacing: '-0.01em' }}>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem', color: 'var(--text)', letterSpacing: '-0.01em' }}>
               {d.title}
             </p>
-            <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'rgba(241,241,248,0.5)' }}>
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'rgba(var(--text-rgb),0.5)' }}>
               {d.category}
               {d.deadline ? ` · ${formatDateIT(d.deadline)}` : ''}
               {d.time ? ` alle ${d.time}` : ''}

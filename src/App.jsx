@@ -165,8 +165,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100svh', background: '#07070f' }}>
-        <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,0.08)', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100svh', background: 'var(--bg)' }}>
+        <div style={{ width: 40, height: 40, border: '3px solid rgba(var(--surface-rgb),0.08)', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     )
@@ -174,11 +174,11 @@ export default function App() {
 
   if (!user) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100svh', background: '#07070f', padding: '2rem', gap: '1.75rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100svh', background: 'var(--bg)', padding: '2rem', gap: '1.75rem' }}>
         <div style={{ fontSize: '3.5rem' }}>🧠</div>
         <div style={{ textAlign: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: '1.9rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.03em' }}>Il Mio Io Digitale</h1>
-          <p style={{ color: 'rgba(241,241,248,0.35)', margin: '0.4rem 0 0', fontSize: '0.875rem' }}>Accesso privato</p>
+          <h1 style={{ margin: 0, fontSize: '1.9rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.03em' }}>Il Mio Io Digitale</h1>
+          <p style={{ color: 'rgba(var(--text-rgb),0.35)', margin: '0.4rem 0 0', fontSize: '0.875rem' }}>Accesso privato</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', maxWidth: 300 }}>
@@ -188,8 +188,8 @@ export default function App() {
             onChange={e => setEmail(e.target.value)}
             placeholder="Email"
             style={{
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '0.875rem', padding: '0.875rem 1rem', color: '#f1f1f8',
+              background: 'rgba(var(--surface-rgb),0.06)', border: '1px solid rgba(var(--surface-rgb),0.12)',
+              borderRadius: '0.875rem', padding: '0.875rem 1rem', color: 'var(--text)',
               fontSize: '0.95rem', outline: 'none', width: '100%', boxSizing: 'border-box',
             }}
           />
@@ -200,8 +200,8 @@ export default function App() {
             placeholder="Codice di accesso"
             onKeyDown={e => e.key === 'Enter' && login()}
             style={{
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '0.875rem', padding: '0.875rem 1rem', color: '#f1f1f8',
+              background: 'rgba(var(--surface-rgb),0.06)', border: '1px solid rgba(var(--surface-rgb),0.12)',
+              borderRadius: '0.875rem', padding: '0.875rem 1rem', color: 'var(--text)',
               fontSize: '0.95rem', outline: 'none', width: '100%', boxSizing: 'border-box',
             }}
           />
@@ -225,7 +225,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', minHeight: '100svh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+    <div style={{ maxWidth: 600, margin: '0 auto', height: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
       {isDemo && (
         <div style={{ background: 'rgba(99,102,241,0.12)', borderBottom: '1px solid rgba(99,102,241,0.25)', padding: '0.5rem 1rem', textAlign: 'center', fontSize: '0.78rem', color: '#a5b4fc' }}>
           🎭 Modalità demo — la voce apre i form, i dati non vengono salvati
@@ -234,7 +234,7 @@ export default function App() {
       )}
 
 
-      <main style={{ flex: 1, padding: '1rem', paddingBottom: '6rem', overflowY: 'auto' }}>
+      <main style={{ flex: 1, minHeight: 0, padding: '1rem', paddingTop: 'calc(1rem + env(safe-area-inset-top))', paddingBottom: '1.5rem', overflowY: 'auto' }}>
         {tab === 'dashboard' && (
           <Dashboard user={user} isDemo={isDemo}
             onNewTask={() => setTaskModal('new')}

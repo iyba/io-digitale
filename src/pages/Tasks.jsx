@@ -50,8 +50,8 @@ export default function Tasks({ user, onNew, onEdit }) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', paddingTop: '0.5rem' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.03em' }}>Impegni</h1>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'rgba(241,241,248,0.4)' }}>
+          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.03em' }}>Impegni</h1>
+          <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'rgba(var(--text-rgb),0.4)' }}>
             {pendingCount} da completare
             {overdueCount > 0 && <span style={{ color: '#f87171', marginLeft: '0.5rem' }}>· {overdueCount} scaduti</span>}
           </p>
@@ -68,7 +68,7 @@ export default function Tasks({ user, onNew, onEdit }) {
 
       {/* Search */}
       <div style={{ position: 'relative' }}>
-        <span style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(241,241,248,0.3)', pointerEvents: 'none', fontSize: '0.9rem' }}>🔍</span>
+        <span style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(var(--text-rgb),0.3)', pointerEvents: 'none', fontSize: '0.9rem' }}>🔍</span>
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -82,9 +82,9 @@ export default function Tasks({ user, onNew, onEdit }) {
         {FILTERS.map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
             padding: '0.4rem 1rem', borderRadius: '999px', whiteSpace: 'nowrap',
-            border: `1.5px solid ${filter === f ? '#7c3aed' : 'rgba(255,255,255,0.1)'}`,
+            border: `1.5px solid ${filter === f ? '#7c3aed' : 'rgba(var(--surface-rgb),0.1)'}`,
             background: filter === f ? 'rgba(124,58,237,0.15)' : 'transparent',
-            color: filter === f ? '#c4b5fd' : 'rgba(241,241,248,0.4)',
+            color: filter === f ? '#c4b5fd' : 'rgba(var(--text-rgb),0.4)',
             cursor: 'pointer', fontSize: '0.8rem', fontWeight: filter === f ? 600 : 400,
             transition: 'all 0.15s',
           }}>
@@ -99,7 +99,7 @@ export default function Tasks({ user, onNew, onEdit }) {
           <p style={{ fontSize: '2.5rem', margin: '0 0 0.5rem' }}>
             {filter === 'Completati' ? '🏆' : filter === 'Scaduti' ? '🎉' : '✨'}
           </p>
-          <p style={{ margin: 0, color: 'rgba(241,241,248,0.3)', fontSize: '0.9rem' }}>
+          <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.3)', fontSize: '0.9rem' }}>
             {filter === 'Completati' ? 'Nessun task completato' : filter === 'Scaduti' ? 'Nessun task scaduto!' : 'Nessun impegno qui'}
           </p>
         </div>
@@ -123,16 +123,16 @@ function TaskCard({ task, onEdit, onToggle }) {
   const pri = PRIORITY_STYLE[task.priority] || PRIORITY_STYLE.media
 
   let dateText = deadline ? format(deadline, 'd MMM', { locale: it }) : ''
-  let dateColor = 'rgba(241,241,248,0.3)'
+  let dateColor = 'rgba(var(--text-rgb),0.3)'
   if (isTod) { dateText = 'Oggi'; dateColor = '#fb923c' }
   else if (isTom) { dateText = 'Domani'; dateColor = '#fbbf24' }
   else if (isOver) { dateColor = '#f87171' }
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: `1px solid ${isOver ? 'rgba(248,113,113,0.25)' : 'rgba(255,255,255,0.07)'}`,
-      borderLeft: `3px solid ${isOver ? '#ef4444' : task.completed ? 'rgba(255,255,255,0.1)' : cat.border}`,
+      background: 'rgba(var(--surface-rgb),0.03)',
+      border: `1px solid ${isOver ? 'rgba(248,113,113,0.25)' : 'rgba(var(--surface-rgb),0.07)'}`,
+      borderLeft: `3px solid ${isOver ? '#ef4444' : task.completed ? 'rgba(var(--surface-rgb),0.1)' : cat.border}`,
       borderRadius: '1rem',
       padding: '0.875rem 1rem',
       display: 'flex', gap: '0.875rem', alignItems: 'flex-start',
@@ -144,7 +144,7 @@ function TaskCard({ task, onEdit, onToggle }) {
         onClick={(e) => { e.stopPropagation(); onToggle() }}
         style={{
           width: 22, height: 22, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-          border: `2px solid ${task.completed ? '#4ade80' : 'rgba(255,255,255,0.2)'}`,
+          border: `2px solid ${task.completed ? '#4ade80' : 'rgba(var(--surface-rgb),0.2)'}`,
           background: task.completed ? '#4ade80' : 'transparent',
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'all 0.2s',
@@ -161,7 +161,7 @@ function TaskCard({ task, onEdit, onToggle }) {
       <div style={{ flex: 1, cursor: 'pointer', minWidth: 0 }} onClick={onEdit}>
         <p style={{
           margin: 0, fontWeight: 600, fontSize: '0.9rem',
-          color: task.completed ? 'rgba(241,241,248,0.4)' : '#f1f1f8',
+          color: task.completed ? 'rgba(var(--text-rgb),0.4)' : 'var(--text)',
           textDecoration: task.completed ? 'line-through' : 'none',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           letterSpacing: '-0.01em',
@@ -192,7 +192,7 @@ function TaskCard({ task, onEdit, onToggle }) {
         </div>
 
         {task.notes && (
-          <p style={{ margin: '0.375rem 0 0', fontSize: '0.78rem', color: 'rgba(241,241,248,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ margin: '0.375rem 0 0', fontSize: '0.78rem', color: 'rgba(var(--text-rgb),0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {task.notes}
           </p>
         )}

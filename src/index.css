@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+:root, [data-theme="dark"] {
+  --bg: #07070f;
+  --bg-rgb: 7, 7, 15;
+  --bg-elev: #111120;
+  --text: #f1f1f8;
+  --text-rgb: 241, 241, 248;
+  --surface-rgb: 255, 255, 255;
+  --input-bg: rgba(255,255,255,0.05);
+}
+
+[data-theme="light"] {
+  --bg: #eef0f6;
+  --bg-rgb: 238, 240, 246;
+  --bg-elev: #ffffff;
+  --text: #16162b;
+  --text-rgb: 22, 22, 43;
+  --surface-rgb: 30, 35, 70;
+  --input-bg: rgba(20,20,43,0.05);
+}
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
@@ -8,10 +28,11 @@
 
   body {
     margin: 0;
-    background: #07070f;
-    color: #f1f1f8;
+    background: var(--bg);
+    color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
+    transition: background 0.25s ease;
   }
 
   #root {
@@ -20,11 +41,11 @@
   }
 
   input, textarea, select {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: 0.875rem;
     padding: 0.75rem 1rem;
-    color: #f1f1f8;
+    color: var(--text);
     font-size: 1rem;
     width: 100%;
     outline: none;
@@ -43,8 +64,8 @@
   }
 
   select option {
-    background: #111120;
-    color: #f1f1f8;
+    background: var(--bg-elev);
+    color: var(--text);
   }
 
   ::-webkit-scrollbar { width: 4px; height: 4px; }

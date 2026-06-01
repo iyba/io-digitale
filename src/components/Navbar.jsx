@@ -48,14 +48,15 @@ const TABS = [
 export default function Navbar({ tab, setTab }) {
   return (
     <nav style={{
-      position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-      width: '100%', maxWidth: 600,
-      background: 'rgba(7,7,15,0.88)',
+      flexShrink: 0,
+      width: '100%',
+      background: 'rgba(var(--bg-rgb),0.95)',
       backdropFilter: 'blur(24px) saturate(180%)',
       WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-      borderTop: '1px solid rgba(255,255,255,0.07)',
+      borderTop: '1px solid rgba(var(--surface-rgb),0.07)',
       display: 'flex', alignItems: 'stretch',
-      paddingBottom: 'env(safe-area-inset-bottom)',
+      paddingTop: '0.25rem',
+      paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)',
       zIndex: 50,
     }}>
       {TABS.map(t => {
@@ -65,7 +66,7 @@ export default function Navbar({ tab, setTab }) {
             flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
             justifyContent: 'center', gap: 2, padding: '0.55rem 0.25rem',
             background: 'none', border: 'none', cursor: 'pointer',
-            color: active ? '#a78bfa' : 'rgba(241,241,248,0.3)',
+            color: active ? '#a78bfa' : 'rgba(var(--text-rgb),0.3)',
             transition: 'color 0.2s', position: 'relative',
           }}>
             {active && (

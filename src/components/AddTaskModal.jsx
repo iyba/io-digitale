@@ -65,10 +65,10 @@ export default function AddTaskModal({ user, initial, onClose }) {
   return (
     <Sheet onClose={onClose}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.02em' }}>
+        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
           {isEdit ? 'Modifica impegno' : 'Nuovo impegno'}
         </h2>
-        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', color: 'rgba(241,241,248,0.5)', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+        <button onClick={onClose} style={{ background: 'rgba(var(--surface-rgb),0.07)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', color: 'rgba(var(--text-rgb),0.5)', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
       </div>
 
       {parsed && (
@@ -94,9 +94,9 @@ export default function AddTaskModal({ user, initial, onClose }) {
               return (
                 <button key={c} type="button" onClick={() => setCategory(c)} style={{
                   padding: '0.375rem 0.875rem', borderRadius: '999px',
-                  border: `1.5px solid ${active ? s.color : 'rgba(255,255,255,0.1)'}`,
+                  border: `1.5px solid ${active ? s.color : 'rgba(var(--surface-rgb),0.1)'}`,
                   background: active ? s.bg : 'transparent',
-                  color: active ? s.color : 'rgba(241,241,248,0.45)',
+                  color: active ? s.color : 'rgba(var(--text-rgb),0.45)',
                   cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
                   transition: 'all 0.15s',
                 }}>{c}</button>
@@ -113,9 +113,9 @@ export default function AddTaskModal({ user, initial, onClose }) {
               return (
                 <button key={p} type="button" onClick={() => setPriority(p)} style={{
                   flex: 1, padding: '0.625rem', borderRadius: '0.875rem',
-                  border: `1.5px solid ${active ? s.color : 'rgba(255,255,255,0.1)'}`,
+                  border: `1.5px solid ${active ? s.color : 'rgba(var(--surface-rgb),0.1)'}`,
                   background: active ? s.bg : 'transparent',
-                  color: active ? s.color : 'rgba(241,241,248,0.45)',
+                  color: active ? s.color : 'rgba(var(--text-rgb),0.45)',
                   cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
                   transition: 'all 0.15s',
                 }}>{s.label}</button>
@@ -128,9 +128,9 @@ export default function AddTaskModal({ user, initial, onClose }) {
           <Field label="Ricorrente">
             <button type="button" onClick={() => setRecurring(r => !r)} style={{
               width: '100%', padding: '0.75rem 1rem', borderRadius: '1rem', textAlign: 'left',
-              border: `1.5px solid ${recurring ? 'rgba(124,58,237,0.5)' : 'rgba(255,255,255,0.1)'}`,
+              border: `1.5px solid ${recurring ? 'rgba(124,58,237,0.5)' : 'rgba(var(--surface-rgb),0.1)'}`,
               background: recurring ? 'rgba(124,58,237,0.1)' : 'transparent',
-              color: recurring ? '#c4b5fd' : 'rgba(241,241,248,0.45)',
+              color: recurring ? '#c4b5fd' : 'rgba(var(--text-rgb),0.45)',
               cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               transition: 'all 0.15s',
@@ -138,14 +138,14 @@ export default function AddTaskModal({ user, initial, onClose }) {
               <span>🔄 Si ripete ogni mese</span>
               <span style={{
                 width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                background: recurring ? '#7c3aed' : 'rgba(255,255,255,0.08)',
+                background: recurring ? '#7c3aed' : 'rgba(var(--surface-rgb),0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '0.7rem', color: 'white', transition: 'all 0.15s',
               }}>{recurring ? '✓' : ''}</span>
             </button>
             {recurring && (
               <div style={{ marginTop: '0.625rem', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', background: 'rgba(124,58,237,0.07)', borderRadius: '0.875rem', border: '1px solid rgba(124,58,237,0.15)' }}>
-                <span style={{ fontSize: '0.85rem', color: 'rgba(241,241,248,0.6)', flex: 1 }}>Ogni mese il giorno</span>
+                <span style={{ fontSize: '0.85rem', color: 'rgba(var(--text-rgb),0.6)', flex: 1 }}>Ogni mese il giorno</span>
                 <input
                   type="number" min="1" max="31" value={recDay}
                   onChange={e => setRecDay(Math.max(1, Math.min(31, parseInt(e.target.value) || 1)))}
@@ -170,8 +170,8 @@ export default function AddTaskModal({ user, initial, onClose }) {
           )}
           <button type="button" onClick={onClose} style={{
             flex: 1, padding: '0.875rem', borderRadius: '0.875rem',
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-            color: 'rgba(241,241,248,0.5)', cursor: 'pointer', fontWeight: 600,
+            background: 'rgba(var(--surface-rgb),0.06)', border: '1px solid rgba(var(--surface-rgb),0.1)',
+            color: 'rgba(var(--text-rgb),0.5)', cursor: 'pointer', fontWeight: 600,
           }}>Annulla</button>
           <button type="submit" disabled={saving || !title.trim()} style={{
             flex: 2, padding: '0.875rem', borderRadius: '0.875rem',
@@ -194,15 +194,15 @@ function Sheet({ children, onClose }) {
       display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
     }}>
       <div style={{
-        background: '#0e0e1a',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: 'var(--bg-elev)',
+        border: '1px solid rgba(var(--surface-rgb),0.08)',
         borderRadius: '1.75rem 1.75rem 0 0',
         width: '100%', maxWidth: 600, padding: '1.5rem',
         paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))',
         maxHeight: '92svh', overflowY: 'auto',
         animation: 'sheetUp 0.25s cubic-bezier(0.34,1.2,0.64,1)',
       }}>
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '-0.25rem auto 1.25rem' }} />
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(var(--surface-rgb),0.15)', margin: '-0.25rem auto 1.25rem' }} />
         <style>{`@keyframes sheetUp { from { transform: translateY(100%) } to { transform: translateY(0) } }`}</style>
         {children}
       </div>
@@ -213,7 +213,7 @@ function Sheet({ children, onClose }) {
 function Field({ label, children }) {
   return (
     <div>
-      <label style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(241,241,248,0.45)', marginBottom: '0.4rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+      <label style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(var(--text-rgb),0.45)', marginBottom: '0.4rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
         {label}
       </label>
       {children}

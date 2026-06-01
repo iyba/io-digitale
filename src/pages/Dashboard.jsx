@@ -63,16 +63,16 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
           <div>
-            <p style={{ margin: 0, color: 'rgba(241,241,248,0.45)', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 500 }}>
+            <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.45)', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 500 }}>
               {format(now, 'EEEE, d MMMM', { locale: it })}
             </p>
-            <h1 style={{ margin: '0.2rem 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.02em' }}>
+            <h1 style={{ margin: '0.2rem 0 0', fontSize: '1.5rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
               {greeting}{name ? `, ${name}` : ''} 👋
             </h1>
           </div>
           <button onClick={onSignOut} style={{
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '0.875rem', padding: '0.4rem 0.75rem', color: 'rgba(241,241,248,0.4)',
+            background: 'rgba(var(--surface-rgb),0.06)', border: '1px solid rgba(var(--surface-rgb),0.1)',
+            borderRadius: '0.875rem', padding: '0.4rem 0.75rem', color: 'rgba(var(--text-rgb),0.4)',
             cursor: 'pointer', fontSize: '0.75rem', fontWeight: 500,
           }}>Esci</button>
         </div>
@@ -80,12 +80,12 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
         {/* Weather row */}
         <div style={{ marginTop: '0.875rem', position: 'relative' }}>
           {weatherStatus === 'loading' && (
-            <p style={{ margin: 0, color: 'rgba(241,241,248,0.3)', fontSize: '0.82rem' }}>Caricamento meteo…</p>
+            <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.3)', fontSize: '0.82rem' }}>Caricamento meteo…</p>
           )}
           {(weatherStatus === 'idle' || weatherStatus === 'denied' || weatherStatus === 'no-geo') && (
             <button onClick={requestWeather} style={{
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '0.75rem', padding: '0.4rem 0.75rem', color: 'rgba(241,241,248,0.5)',
+              background: 'rgba(var(--surface-rgb),0.06)', border: '1px solid rgba(var(--surface-rgb),0.12)',
+              borderRadius: '0.75rem', padding: '0.4rem 0.75rem', color: 'rgba(var(--text-rgb),0.5)',
               cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500,
             }}>
               📍 Mostra meteo
@@ -97,10 +97,10 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                 <span style={{ fontSize: '2.25rem', lineHeight: 1 }}>{wCurrent.icon}</span>
                 <div>
-                  <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                  <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.03em', lineHeight: 1 }}>
                     {weather.current.temp}°
                   </p>
-                  <p style={{ margin: '0.1rem 0 0', fontSize: '0.72rem', color: 'rgba(241,241,248,0.45)', fontWeight: 500 }}>
+                  <p style={{ margin: '0.1rem 0 0', fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.45)', fontWeight: 500 }}>
                     {wCurrent.label}
                   </p>
                 </div>
@@ -108,13 +108,13 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 
               {/* Details */}
               <div style={{ textAlign: 'right' }}>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: 'rgba(241,241,248,0.5)' }}>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: 'rgba(var(--text-rgb),0.5)' }}>
                   {weather.today.min}° / {weather.today.max}°
                 </p>
-                <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: 'rgba(241,241,248,0.5)' }}>
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: 'rgba(var(--text-rgb),0.5)' }}>
                   💨 {weather.current.wind} km/h
                 </p>
-                <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: weather.today.rainProb >= 40 ? '#fbbf24' : 'rgba(241,241,248,0.5)' }}>
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: weather.today.rainProb >= 40 ? '#fbbf24' : 'rgba(var(--text-rgb),0.5)' }}>
                   🌧️ {weather.today.rainProb}%
                 </p>
               </div>
@@ -155,7 +155,7 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 
       {/* ── SETTIMANA ────────────────────────────────────────────────────────── */}
       <div>
-        <p style={{ margin: '0 0 0.5rem', fontSize: '0.68rem', color: 'rgba(241,241,248,0.4)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <p style={{ margin: '0 0 0.5rem', fontSize: '0.68rem', color: 'rgba(var(--text-rgb),0.4)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Questa settimana
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.3rem' }}>
@@ -170,16 +170,16 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 
             return (
               <div key={i} style={{
-                background: isT ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.025)',
-                border: isT ? '1px solid rgba(124,58,237,0.45)' : '1px solid rgba(255,255,255,0.06)',
+                background: isT ? 'rgba(124,58,237,0.2)' : 'rgba(var(--surface-rgb),0.025)',
+                border: isT ? '1px solid rgba(124,58,237,0.45)' : '1px solid rgba(var(--surface-rgb),0.06)',
                 borderRadius: '0.875rem',
                 padding: '0.5rem 0.2rem',
                 textAlign: 'center',
               }}>
-                <p style={{ margin: 0, fontSize: '0.56rem', color: isT ? '#a78bfa' : 'rgba(241,241,248,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                <p style={{ margin: 0, fontSize: '0.56rem', color: isT ? '#a78bfa' : 'rgba(var(--text-rgb),0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                   {format(day, 'EEE', { locale: it }).slice(0, 3)}
                 </p>
-                <p style={{ margin: '0.15rem 0', fontSize: isT ? '1rem' : '0.875rem', fontWeight: isT ? 800 : 600, color: isT ? '#f1f1f8' : 'rgba(241,241,248,0.55)', lineHeight: 1 }}>
+                <p style={{ margin: '0.15rem 0', fontSize: isT ? '1rem' : '0.875rem', fontWeight: isT ? 800 : 600, color: isT ? 'var(--text)' : 'rgba(var(--text-rgb),0.55)', lineHeight: 1 }}>
                   {format(day, 'd')}
                 </p>
 
@@ -188,7 +188,7 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
                   <p style={{ margin: '0.1rem 0', fontSize: '0.85rem', lineHeight: 1 }}>{wInfo.icon}</p>
                 )}
                 {wd && (
-                  <p style={{ margin: '0.1rem 0 0.2rem', fontSize: '0.58rem', color: hasRain ? '#fbbf24' : 'rgba(241,241,248,0.3)', fontWeight: 600 }}>
+                  <p style={{ margin: '0.1rem 0 0.2rem', fontSize: '0.58rem', color: hasRain ? '#fbbf24' : 'rgba(var(--text-rgb),0.3)', fontWeight: 600 }}>
                     {wd.max}°{hasRain ? ` ${wd.rainProb}%` : ''}
                   </p>
                 )}
@@ -210,22 +210,22 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
 
       {/* ── OGGI ──────────────────────────────────────────────────────────────── */}
       <div style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(var(--surface-rgb),0.03)',
+        border: '1px solid rgba(var(--surface-rgb),0.07)',
         borderRadius: '1.25rem',
         overflow: 'hidden',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 1rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 1rem 0.75rem', borderBottom: '1px solid rgba(var(--surface-rgb),0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ fontSize: '0.85rem' }}>📅</span>
-            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.875rem', color: '#f1f1f8' }}>Oggi</p>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.875rem', color: 'var(--text)' }}>Oggi</p>
             {focusTasks.length > 0 && (
               <span style={{ background: 'rgba(167,139,250,0.18)', color: '#a78bfa', borderRadius: '0.5rem', padding: '0.08rem 0.4rem', fontSize: '0.68rem', fontWeight: 700 }}>
                 {focusTasks.length}
               </span>
             )}
             {pendingCount > focusTasks.length && (
-              <span style={{ color: 'rgba(241,241,248,0.3)', fontSize: '0.7rem' }}>
+              <span style={{ color: 'rgba(var(--text-rgb),0.3)', fontSize: '0.7rem' }}>
                 +{pendingCount - focusTasks.length} altri
               </span>
             )}
@@ -238,7 +238,7 @@ export default function Dashboard({ user, onNewTask, onNewExpense, onEditTask, o
         {focusTasks.length === 0 ? (
           <div style={{ padding: '1.75rem 1rem', textAlign: 'center' }}>
             <p style={{ margin: '0 0 0.3rem', fontSize: '1.4rem' }}>✅</p>
-            <p style={{ margin: 0, color: 'rgba(241,241,248,0.25)', fontSize: '0.83rem' }}>
+            <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.25)', fontSize: '0.83rem' }}>
               Nessun impegno per oggi — ottimo!
             </p>
           </div>
@@ -272,7 +272,7 @@ function FocusRow({ task, onCheck, onEdit }) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: '0.75rem',
       padding: '0.75rem 1rem',
-      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      borderBottom: '1px solid rgba(var(--surface-rgb),0.05)',
     }}>
       <button onClick={e => { e.stopPropagation(); onCheck() }} style={{
         width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
@@ -280,11 +280,11 @@ function FocusRow({ task, onCheck, onEdit }) {
         background: 'transparent', cursor: 'pointer', padding: 0,
       }} />
       <div onClick={onEdit} style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}>
-        <p style={{ margin: 0, fontSize: '0.875rem', color: '#f1f1f8', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {task.title}
         </p>
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginTop: '0.12rem' }}>
-          <span style={{ fontSize: '0.67rem', color: 'rgba(241,241,248,0.35)' }}>{task.category}</span>
+          <span style={{ fontSize: '0.67rem', color: 'rgba(var(--text-rgb),0.35)' }}>{task.category}</span>
           {isOver && <span style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700 }}>• Scaduto</span>}
           {isTod  && <span style={{ fontSize: '0.65rem', color: '#fb923c', fontWeight: 700 }}>• Oggi</span>}
         </div>
@@ -296,21 +296,21 @@ function FocusRow({ task, onCheck, onEdit }) {
 function QuickBtn({ icon, label, sub, color, glow, onClick }) {
   return (
     <button onClick={onClick} style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.07)',
+      background: 'rgba(var(--surface-rgb),0.03)',
+      border: '1px solid rgba(var(--surface-rgb),0.07)',
       borderRadius: '1.125rem',
       padding: '1rem 0.875rem',
       cursor: 'pointer', textAlign: 'left',
       position: 'relative', overflow: 'hidden',
       transition: 'background 0.15s',
     }}
-    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-    onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+    onMouseEnter={e => e.currentTarget.style.background = 'rgba(var(--surface-rgb),0.06)'}
+    onMouseLeave={e => e.currentTarget.style.background = 'rgba(var(--surface-rgb),0.03)'}
     >
       <div style={{ position: 'absolute', bottom: -10, right: -10, width: 50, height: 50, borderRadius: '50%', background: glow, filter: 'blur(16px)', pointerEvents: 'none' }} />
       <p style={{ margin: '0 0 0.3rem', fontSize: '1.3rem' }}>{icon}</p>
-      <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: '#f1f1f8' }}>{label}</p>
-      <p style={{ margin: '0.1rem 0 0', fontSize: '0.7rem', color: 'rgba(241,241,248,0.35)' }}>{sub}</p>
+      <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--text)' }}>{label}</p>
+      <p style={{ margin: '0.1rem 0 0', fontSize: '0.7rem', color: 'rgba(var(--text-rgb),0.35)' }}>{sub}</p>
     </button>
   )
 }

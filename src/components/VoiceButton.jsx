@@ -34,7 +34,7 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
     recog.interimResults = true
     recogRef.current = recog
 
-    recog.onstart = () => { setS('listening'); setTranscript('') }
+    recog.onstart = () => { setS('listening'); setTranscript(''); localStorage.setItem('perm_mic', 'granted') }
 
     recog.onresult = (e) => {
       const t = Array.from(e.results).map(r => r[0].transcript).join(' ')
@@ -82,7 +82,7 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
       {bigPrompt && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 100,
-          background: 'rgba(7,7,15,0.96)', backdropFilter: 'blur(8px)',
+          background: 'rgba(var(--bg-rgb),0.96)', backdropFilter: 'blur(8px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           gap: '2rem', padding: '2rem',
         }}>
@@ -128,11 +128,11 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
                 {transcript || 'Sto ascoltando…'}
               </p>
             ) : (
-              <p style={{ margin: 0, color: '#f1f1f8', fontSize: '1.2rem', fontWeight: 700 }}>
+              <p style={{ margin: 0, color: 'var(--text)', fontSize: '1.2rem', fontWeight: 700 }}>
                 Tocca e parla 🎤
               </p>
             )}
-            <p style={{ margin: '0.5rem 0 0', color: 'rgba(241,241,248,0.4)', fontSize: '0.82rem' }}>
+            <p style={{ margin: '0.5rem 0 0', color: 'rgba(var(--text-rgb),0.4)', fontSize: '0.82rem' }}>
               Es: "ho speso 50 euro di benzina"
             </p>
           </div>
@@ -140,8 +140,8 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
           <button
             onClick={() => { recogRef.current?.stop(); setBigPrompt(false); setS('idle'); setTranscript(''); onAutoListenDone?.() }}
             style={{
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '0.875rem', padding: '0.625rem 1.5rem', color: 'rgba(241,241,248,0.6)',
+              background: 'rgba(var(--surface-rgb),0.08)', border: '1px solid rgba(var(--surface-rgb),0.12)',
+              borderRadius: '0.875rem', padding: '0.625rem 1.5rem', color: 'rgba(var(--text-rgb),0.6)',
               cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500,
             }}
           >
@@ -184,7 +184,7 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
               {transcript || 'Sto ascoltando...'}
             </span>
           ) : (
-            <span style={{ color: 'rgba(241,241,248,0.8)' }}>{transcript}</span>
+            <span style={{ color: 'rgba(var(--text-rgb),0.8)' }}>{transcript}</span>
           )}
           <style>{`@keyframes waveBar { from{transform:scaleY(0.4)} to{transform:scaleY(1)} }`}</style>
         </div>

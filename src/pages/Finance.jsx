@@ -61,7 +61,7 @@ export default function Finance({ user, onNew, onEdit }) {
     }
   }), [expenses, selectedMonth, selectedYear])
 
-  const tooltipStyle = { background: '#111120', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#f1f1f8', fontSize: '0.8rem' }
+  const tooltipStyle = { background: 'var(--bg-elev)', border: '1px solid rgba(var(--surface-rgb),0.1)', borderRadius: '0.75rem', color: 'var(--text)', fontSize: '0.8rem' }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -69,8 +69,8 @@ export default function Finance({ user, onNew, onEdit }) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', paddingTop: '0.5rem' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: '#f1f1f8', letterSpacing: '-0.03em' }}>Finanze</h1>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'rgba(241,241,248,0.4)' }}>
+          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.03em' }}>Finanze</h1>
+          <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'rgba(var(--text-rgb),0.4)' }}>
             {MONTHS[selectedMonth]} {selectedYear}
           </p>
         </div>
@@ -89,9 +89,9 @@ export default function Finance({ user, onNew, onEdit }) {
         {MONTHS.map((m, i) => (
           <button key={m} onClick={() => setSelectedMonth(i)} style={{
             padding: '0.4rem 0.875rem', borderRadius: '999px', whiteSpace: 'nowrap',
-            border: `1.5px solid ${selectedMonth === i ? '#7c3aed' : 'rgba(255,255,255,0.1)'}`,
+            border: `1.5px solid ${selectedMonth === i ? '#7c3aed' : 'rgba(var(--surface-rgb),0.1)'}`,
             background: selectedMonth === i ? 'rgba(124,58,237,0.15)' : 'transparent',
-            color: selectedMonth === i ? '#c4b5fd' : 'rgba(241,241,248,0.4)',
+            color: selectedMonth === i ? '#c4b5fd' : 'rgba(var(--text-rgb),0.4)',
             cursor: 'pointer', fontSize: '0.8rem', fontWeight: selectedMonth === i ? 600 : 400,
             transition: 'all 0.15s',
           }}>{m}</button>
@@ -108,14 +108,14 @@ export default function Finance({ user, onNew, onEdit }) {
       }}>
         <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(124,58,237,0.2)', filter: 'blur(20px)', pointerEvents: 'none' }} />
         <BalanceCard amount={totaleEntrate} label="Entrate" color="#4ade80" sign="+" />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', borderLeft: '1px solid rgba(var(--surface-rgb),0.08)', borderRight: '1px solid rgba(var(--surface-rgb),0.08)' }}>
           <BalanceCard amount={totaleSpese} label="Spese" color="#fb923c" sign="-" />
         </div>
         <BalanceCard amount={Math.abs(saldo)} label="Saldo" color={saldo >= 0 ? '#4ade80' : '#f87171'} sign={saldo >= 0 ? '+' : '-'} />
       </div>
 
       {/* View toggle — 3 views */}
-      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.875rem', padding: '0.25rem', gap: '0.25rem' }}>
+      <div style={{ display: 'flex', background: 'rgba(var(--surface-rgb),0.04)', border: '1px solid rgba(var(--surface-rgb),0.07)', borderRadius: '0.875rem', padding: '0.25rem', gap: '0.25rem' }}>
         {[
           { id: 'lista', label: '📋 Lista' },
           { id: 'categorie', label: '🏷️ Categorie' },
@@ -123,8 +123,8 @@ export default function Finance({ user, onNew, onEdit }) {
         ].map(v => (
           <button key={v.id} onClick={() => setView(v.id)} style={{
             flex: 1, padding: '0.5rem 0.25rem', borderRadius: '0.65rem',
-            background: view === v.id ? 'rgba(255,255,255,0.08)' : 'transparent',
-            border: 'none', color: view === v.id ? '#f1f1f8' : 'rgba(241,241,248,0.35)',
+            background: view === v.id ? 'rgba(var(--surface-rgb),0.08)' : 'transparent',
+            border: 'none', color: view === v.id ? 'var(--text)' : 'rgba(var(--text-rgb),0.35)',
             cursor: 'pointer', fontWeight: view === v.id ? 600 : 400, fontSize: '0.78rem',
             transition: 'all 0.15s', whiteSpace: 'nowrap',
           }}>
@@ -137,10 +137,10 @@ export default function Finance({ user, onNew, onEdit }) {
       {view === 'lista' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {recurringExpenses.length > 0 && (
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(124,58,237,0.15)', borderRadius: '1.25rem', overflow: 'hidden' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.875rem', color: '#f1f1f8' }}>🔄 Abbonamenti</p>
-                <span style={{ fontSize: '0.72rem', color: 'rgba(241,241,248,0.4)', fontWeight: 600 }}>
+            <div style={{ background: 'rgba(var(--surface-rgb),0.02)', border: '1px solid rgba(124,58,237,0.15)', borderRadius: '1.25rem', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 1rem', borderBottom: '1px solid rgba(var(--surface-rgb),0.06)' }}>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.875rem', color: 'var(--text)' }}>🔄 Abbonamenti</p>
+                <span style={{ fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.4)', fontWeight: 600 }}>
                   {recurringExpenses.length} attivi · -€{recurringExpenses.reduce((s, r) => s + r.amount, 0).toFixed(2)}/mese
                 </span>
               </div>
@@ -153,7 +153,7 @@ export default function Finance({ user, onNew, onEdit }) {
           {monthExpenses.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
               <p style={{ fontSize: '2.5rem', margin: '0 0 0.5rem' }}>💸</p>
-              <p style={{ margin: 0, color: 'rgba(241,241,248,0.3)', fontSize: '0.9rem' }}>Nessuna voce per {MONTHS[selectedMonth]}</p>
+              <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.3)', fontSize: '0.9rem' }}>Nessuna voce per {MONTHS[selectedMonth]}</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -174,8 +174,8 @@ export default function Finance({ user, onNew, onEdit }) {
               const hasSpending = spent > 0
               return (
                 <div key={cat} style={{
-                  background: hasSpending ? s.bg : 'rgba(255,255,255,0.015)',
-                  border: `1px solid ${hasSpending ? s.color + '50' : 'rgba(255,255,255,0.05)'}`,
+                  background: hasSpending ? s.bg : 'rgba(var(--surface-rgb),0.015)',
+                  border: `1px solid ${hasSpending ? s.color + '50' : 'rgba(var(--surface-rgb),0.05)'}`,
                   borderRadius: '1.25rem', padding: '1rem',
                   opacity: hasSpending ? 1 : 0.45,
                   transition: 'all 0.2s',
@@ -188,13 +188,13 @@ export default function Finance({ user, onNew, onEdit }) {
                       </span>
                     )}
                   </div>
-                  <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: hasSpending ? '#f1f1f8' : 'rgba(241,241,248,0.25)', letterSpacing: '-0.02em' }}>
+                  <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: hasSpending ? 'var(--text)' : 'rgba(var(--text-rgb),0.25)', letterSpacing: '-0.02em' }}>
                     {hasSpending ? `€${spent.toFixed(0)}` : '—'}
                   </p>
-                  <p style={{ margin: '0.15rem 0 0.625rem', fontSize: '0.75rem', color: hasSpending ? 'rgba(241,241,248,0.5)' : 'rgba(241,241,248,0.2)' }}>
+                  <p style={{ margin: '0.15rem 0 0.625rem', fontSize: '0.75rem', color: hasSpending ? 'rgba(var(--text-rgb),0.5)' : 'rgba(var(--text-rgb),0.2)' }}>
                     {cat}
                   </p>
-                  <div style={{ background: 'rgba(255,255,255,0.07)', borderRadius: '999px', height: 3 }}>
+                  <div style={{ background: 'rgba(var(--surface-rgb),0.07)', borderRadius: '999px', height: 3 }}>
                     <div style={{ width: `${pct}%`, background: s.color, height: '100%', borderRadius: '999px', transition: 'width 0.6s ease' }} />
                   </div>
                 </div>
@@ -211,11 +211,11 @@ export default function Finance({ user, onNew, onEdit }) {
               {monthExpenses.filter(e => e.type === 'entrata').map(e => {
                 const s = CAT_STYLES[e.category] || CAT_STYLES.Altro
                 return (
-                  <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(var(--surface-rgb),0.04)' }}>
                     <span style={{ fontSize: '1.1rem' }}>{s.icon}</span>
                     <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: '#f1f1f8' }}>{e.description || e.category}</p>
-                      <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(241,241,248,0.35)' }}>{e.category}</p>
+                      <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text)' }}>{e.description || e.category}</p>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(var(--text-rgb),0.35)' }}>{e.category}</p>
                     </div>
                     <p style={{ margin: 0, fontWeight: 800, color: '#4ade80', fontSize: '0.9rem' }}>+€{e.amount.toFixed(2)}</p>
                   </div>
@@ -232,8 +232,8 @@ export default function Finance({ user, onNew, onEdit }) {
           {byCat.length > 0 ? (
             <>
               {/* Donut chart */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1.25rem', padding: '1.125rem' }}>
-                <p style={{ margin: '0 0 0.875rem', fontWeight: 700, fontSize: '0.875rem', color: '#f1f1f8' }}>Spese per categoria</p>
+              <div style={{ background: 'rgba(var(--surface-rgb),0.03)', border: '1px solid rgba(var(--surface-rgb),0.07)', borderRadius: '1.25rem', padding: '1.125rem' }}>
+                <p style={{ margin: '0 0 0.875rem', fontWeight: 700, fontSize: '0.875rem', color: 'var(--text)' }}>Spese per categoria</p>
                 <ResponsiveContainer width="100%" height={180}>
                   <PieChart>
                     <Pie data={byCat} cx="50%" cy="50%" innerRadius={45} outerRadius={75} dataKey="value" paddingAngle={3} strokeWidth={0}>
@@ -250,8 +250,8 @@ export default function Finance({ user, onNew, onEdit }) {
                     return (
                       <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem' }}>
                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: s.color }} />
-                        <span style={{ color: 'rgba(241,241,248,0.6)' }}>{s.icon} {c.name}</span>
-                        <span style={{ color: '#f1f1f8', fontWeight: 700 }}>€{c.value.toFixed(0)}</span>
+                        <span style={{ color: 'rgba(var(--text-rgb),0.6)' }}>{s.icon} {c.name}</span>
+                        <span style={{ color: 'var(--text)', fontWeight: 700 }}>€{c.value.toFixed(0)}</span>
                       </div>
                     )
                   })}
@@ -259,21 +259,21 @@ export default function Finance({ user, onNew, onEdit }) {
               </div>
 
               {/* Distribution bars */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1.25rem', overflow: 'hidden' }}>
-                <p style={{ margin: 0, padding: '0.875rem 1rem', fontWeight: 700, fontSize: '0.875rem', color: '#f1f1f8', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ background: 'rgba(var(--surface-rgb),0.03)', border: '1px solid rgba(var(--surface-rgb),0.07)', borderRadius: '1.25rem', overflow: 'hidden' }}>
+                <p style={{ margin: 0, padding: '0.875rem 1rem', fontWeight: 700, fontSize: '0.875rem', color: 'var(--text)', borderBottom: '1px solid rgba(var(--surface-rgb),0.06)' }}>
                   Distribuzione
                 </p>
                 {byCat.map(c => {
                   const s = CAT_STYLES[c.name] || CAT_STYLES.Altro
                   return (
-                    <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(var(--surface-rgb),0.05)' }}>
                       <span style={{ fontSize: '1.1rem', width: 24, textAlign: 'center', flexShrink: 0 }}>{s.icon}</span>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                          <span style={{ fontSize: '0.85rem', color: '#f1f1f8', fontWeight: 500 }}>{c.name}</span>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--text)', fontWeight: 500 }}>{c.name}</span>
                           <span style={{ fontSize: '0.85rem', color: s.color, fontWeight: 700 }}>€{c.value.toFixed(2)}</span>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: 3, overflow: 'hidden' }}>
+                        <div style={{ background: 'rgba(var(--surface-rgb),0.06)', borderRadius: '999px', height: 3, overflow: 'hidden' }}>
                           <div style={{
                             width: `${(c.value / totaleSpese * 100).toFixed(0)}%`,
                             background: s.color,
@@ -282,7 +282,7 @@ export default function Finance({ user, onNew, onEdit }) {
                           }} />
                         </div>
                       </div>
-                      <span style={{ fontSize: '0.72rem', color: 'rgba(241,241,248,0.3)', width: 30, textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.3)', width: 30, textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
                         {(c.value / totaleSpese * 100).toFixed(0)}%
                       </span>
                     </div>
@@ -293,16 +293,16 @@ export default function Finance({ user, onNew, onEdit }) {
           ) : (
             <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <p style={{ fontSize: '2rem', margin: '0 0 0.5rem' }}>📊</p>
-              <p style={{ margin: 0, color: 'rgba(241,241,248,0.3)', fontSize: '0.9rem' }}>Nessuna spesa per {MONTHS[selectedMonth]}</p>
+              <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.3)', fontSize: '0.9rem' }}>Nessuna spesa per {MONTHS[selectedMonth]}</p>
             </div>
           )}
 
           {/* Bar chart last 6 months */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1.25rem', padding: '1.125rem' }}>
-            <p style={{ margin: '0 0 0.875rem', fontWeight: 700, fontSize: '0.875rem', color: '#f1f1f8' }}>Ultimi 6 mesi</p>
+          <div style={{ background: 'rgba(var(--surface-rgb),0.03)', border: '1px solid rgba(var(--surface-rgb),0.07)', borderRadius: '1.25rem', padding: '1.125rem' }}>
+            <p style={{ margin: '0 0 0.875rem', fontWeight: 700, fontSize: '0.875rem', color: 'var(--text)' }}>Ultimi 6 mesi</p>
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={last6Months} barSize={12} barGap={2}>
-                <XAxis dataKey="name" tick={{ fill: 'rgba(241,241,248,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: 'rgba(var(--text-rgb),0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis hide />
                 <Tooltip formatter={(v) => `€${v.toFixed(2)}`} contentStyle={tooltipStyle} />
                 <Bar dataKey="entrate" fill="#4ade80" radius={[4, 4, 0, 0]} />
@@ -326,7 +326,7 @@ function BalanceCard({ amount, label, color, sign }) {
       <p style={{ margin: 0, color, fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em' }}>
         {sign}€{amount.toFixed(0)}
       </p>
-      <p style={{ margin: '0.2rem 0 0', fontSize: '0.68rem', color: 'rgba(241,241,248,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
+      <p style={{ margin: '0.2rem 0 0', fontSize: '0.68rem', color: 'rgba(var(--text-rgb),0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
     </div>
   )
 }
@@ -335,13 +335,13 @@ function ExpenseCard({ expense, onClick }) {
   const s = CAT_STYLES[expense.category] || CAT_STYLES.Altro
   return (
     <div onClick={onClick} style={{
-      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+      background: 'rgba(var(--surface-rgb),0.03)', border: '1px solid rgba(var(--surface-rgb),0.07)',
       borderRadius: '1rem', padding: '0.875rem 1rem',
       display: 'flex', alignItems: 'center', gap: '0.875rem', cursor: 'pointer',
       transition: 'background 0.15s',
     }}
-    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-    onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+    onMouseEnter={e => e.currentTarget.style.background = 'rgba(var(--surface-rgb),0.05)'}
+    onMouseLeave={e => e.currentTarget.style.background = 'rgba(var(--surface-rgb),0.03)'}
     >
       <div style={{
         width: 42, height: 42, borderRadius: '0.875rem', flexShrink: 0,
@@ -353,10 +353,10 @@ function ExpenseCard({ expense, onClick }) {
         {s.icon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ margin: 0, fontWeight: 600, color: '#f1f1f8', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
+        <p style={{ margin: 0, fontWeight: 600, color: 'var(--text)', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
           {expense.description || expense.category}
         </p>
-        <p style={{ margin: '0.15rem 0 0', fontSize: '0.72rem', color: 'rgba(241,241,248,0.35)' }}>
+        <p style={{ margin: '0.15rem 0 0', fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.35)' }}>
           {expense.category} · {expense.date}
         </p>
       </div>
@@ -370,7 +370,7 @@ function ExpenseCard({ expense, onClick }) {
 function RecurringRow({ item, onDelete }) {
   const s = CAT_STYLES[item.category] || CAT_STYLES.Altro
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(var(--surface-rgb),0.05)' }}>
       <div style={{
         width: 40, height: 40, borderRadius: '0.875rem', flexShrink: 0,
         background: s.bg, border: `1px solid ${s.color}40`,
@@ -379,10 +379,10 @@ function RecurringRow({ item, onDelete }) {
         {s.icon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ margin: 0, fontWeight: 600, color: '#f1f1f8', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <p style={{ margin: 0, fontWeight: 600, color: 'var(--text)', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {item.description || item.category}
         </p>
-        <p style={{ margin: '0.15rem 0 0', fontSize: '0.72rem', color: 'rgba(241,241,248,0.4)' }}>
+        <p style={{ margin: '0.15rem 0 0', fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.4)' }}>
           Ogni mese il {item.dayOfMonth}° · {item.category}
         </p>
       </div>
@@ -400,7 +400,7 @@ function RecurringRow({ item, onDelete }) {
 
 function Legend({ color, label }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: 'rgba(241,241,248,0.5)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: 'rgba(var(--text-rgb),0.5)' }}>
       <div style={{ width: 8, height: 8, borderRadius: 2, background: color }} />
       {label}
     </div>
