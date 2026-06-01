@@ -30,7 +30,7 @@ export async function generateRecurringInstances(userId) {
     } else {
       await addDoc(collection(db, 'tasks'), {
         title: r.title, category: r.category, priority: r.priority,
-        notes: r.notes || '', deadline: date, completed: false,
+        notes: r.notes || '', deadline: date, time: r.time || '', completed: false,
         userId, recurringId: r.id, createdAt: serverTimestamp(),
       })
     }

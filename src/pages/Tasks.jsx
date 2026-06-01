@@ -186,7 +186,7 @@ function TaskCard({ task, onEdit, onToggle }) {
           )}
           {deadline && (
             <span style={{ fontSize: '0.73rem', color: dateColor, fontWeight: isOver ? 700 : 400, marginLeft: 'auto' }}>
-              {isOver && '⚠ '}{dateText}
+              {isOver && '⚠ '}{dateText}{task.time ? ` · ${task.time}` : ''}
             </span>
           )}
         </div>

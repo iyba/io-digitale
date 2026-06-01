@@ -184,6 +184,7 @@ function FocusRow({ task, onCheck, onEdit }) {
         <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</p>
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginTop: '0.12rem' }}>
           <span style={{ fontSize: '0.67rem', color: 'rgba(var(--text-rgb),0.4)' }}>{task.category}</span>
+          {task.time && <span style={{ fontSize: '0.65rem', color: '#a78bfa', fontWeight: 700 }}>🕐 {task.time}</span>}
           {isOver && <span style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700 }}>• Scaduto</span>}
           {isTod && <span style={{ fontSize: '0.65rem', color: '#fb923c', fontWeight: 700 }}>• Oggi</span>}
         </div>
@@ -199,7 +200,10 @@ function UpcomingRow({ task, onClick }) {
     <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
       <div style={{ width: 8, height: 8, borderRadius: '50%', background: col, flexShrink: 0 }} />
       <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
-      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: rl.color, flexShrink: 0 }}>{rl.text}</span>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <div style={{ fontSize: '0.74rem', fontWeight: 700, color: rl.color }}>{rl.text}</div>
+        {task.time && <div style={{ fontSize: '0.66rem', color: 'rgba(var(--text-rgb),0.45)', marginTop: '0.1rem' }}>🕐 {task.time}</div>}
+      </div>
     </div>
   )
 }

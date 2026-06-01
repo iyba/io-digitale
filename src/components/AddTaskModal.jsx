@@ -29,6 +29,7 @@ export default function AddTaskModal({ user, initial, onClose }) {
 
   const [title, setTitle] = useState(isEdit ? initial.title : (parsed?.title || ''))
   const [deadline, setDeadline] = useState(isEdit ? (initial.deadline || '') : (parsed?.deadline || prefillDate))
+  const [time, setTime] = useState(isEdit ? (initial.time || '') : (parsed?.time || ''))
   const [category, setCategory] = useState(isEdit ? initial.category : (parsed?.category || 'Personale'))
   const [priority, setPriority] = useState(isEdit ? initial.priority : (parsed?.priority || 'media'))
   const [notes, setNotes] = useState(isEdit ? (initial.notes || '') : '')
@@ -40,7 +41,7 @@ export default function AddTaskModal({ user, initial, onClose }) {
     e.preventDefault()
     if (!title.trim()) return
     setSaving(true)
-    const data = { title: title.trim(), deadline, category, priority, notes, completed: isEdit ? initial.completed : false }
+    const data = { title: title.trim(), deadline, time, category, priority, notes, completed: isEdit ? initial.completed : false }
     if (isEdit) {
       await update(initial.id, data)
     } else {
@@ -48,7 +49,7 @@ export default function AddTaskModal({ user, initial, onClose }) {
       if (recurring) {
         await addRecurring({
           kind: 'task', frequency: 'monthly', dayOfMonth: recDay,
-          title: title.trim(), category, priority, notes,
+          title: title.trim(), category, priority, notes, time,
           active: true, lastGenerated: deadline ? deadline.slice(0, 7) : new Date().toISOString().slice(0, 7),
         })
       }
@@ -82,9 +83,18 @@ export default function AddTaskModal({ user, initial, onClose }) {
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Es. Chiamare il medico" autoFocus />
         </Field>
 
-        <Field label="Scadenza">
-          <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} />
-        </Field>
+        <div style={{ display: 'flex', gap: '0.625rem' }}>
+          <div style={{ flex: 1.6 }}>
+            <Field label="Scadenza">
+              <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} />
+            </Field>
+          </div>
+          <div style={{ flex: 1 }}>
+            <Field label="Orario">
+              <input type="time" value={time} onChange={e => setTime(e.target.value)} />
+            </Field>
+          </div>
+        </div>
 
         <Field label="Categoria">
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
