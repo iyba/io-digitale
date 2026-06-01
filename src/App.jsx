@@ -3,9 +3,8 @@ import { auth, db } from './firebase'
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth'
 import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore'
 import Dashboard from './pages/Dashboard'
-import Tasks from './pages/Tasks'
+import Impegni from './pages/Impegni'
 import Finance from './pages/Finance'
-import Calendar from './pages/Calendar'
 import Settings from './pages/Settings'
 import Navbar from './components/Navbar'
 import VoiceButton from './components/VoiceButton'
@@ -223,15 +222,10 @@ export default function App() {
           />
         )}
         {tab === 'tasks' && (
-          <Tasks user={user} isDemo={isDemo}
+          <Impegni user={user}
             onNew={() => setTaskModal('new')}
             onEdit={t => setTaskModal(t)}
-          />
-        )}
-        {tab === 'calendar' && (
-          <Calendar user={user}
-            onEdit={t => setTaskModal(t)}
-            onNew={(date) => setTaskModal(date ? { prefillDate: date } : 'new')}
+            onNewOnDate={(date) => setTaskModal(date ? { prefillDate: date } : 'new')}
           />
         )}
         {tab === 'finance' && (
