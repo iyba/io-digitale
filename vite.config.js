@@ -63,5 +63,20 @@ export default defineConfig(({ mode }) => {
         },
       },
     ],
+    build: {
+      chunkSizeWarningLimit: 1200,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('firebase') || id.includes('@firebase')) return 'firebase'
+              if (id.includes('recharts') || id.includes('d3-')) return 'charts'
+              if (id.includes('date-fns')) return 'datefns'
+              if (id.includes('react')) return 'react'
+            }
+          },
+        },
+      },
+    },
   }
 })

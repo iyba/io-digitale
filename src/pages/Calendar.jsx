@@ -253,7 +253,7 @@ function DayTaskRow({ task, onEdit, onToggle }) {
 }
 
 function DayExpenseRow({ expense }) {
-  const icons = { Cibo: '🍕', Casa: '🏠', Trasporti: '🚗', Salute: '💊', Abbigliamento: '👕', Intrattenimento: '🎬', Tecnologia: '💻', Stipendio: '💼', Freelance: '🖥️', Altro: '📦' }
+  const icons = { Casa: '🏠', Cibo: '🍕', Moto: '🏍️', Macchina: '🚗', Personale: '🧴', Viaggi: '✈️', Svago: '🎭', Stipendio: '💼', Freelance: '💻', Investimenti: '📈', Regalo: '🎁', Rimborso: '↩️', Altro: '📦' }
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(var(--surface-rgb),0.05)', borderLeft: '3px solid rgba(251,146,60,0.5)' }}>
       <span style={{ fontSize: '1rem', flexShrink: 0 }}>{icons[expense.category] || '📦'}</span>

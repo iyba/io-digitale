@@ -29,15 +29,18 @@ const TASK_CATEGORY_KEYWORDS = {
 }
 
 const EXPENSE_CATEGORY_KEYWORDS = {
-  Cibo: ['supermercato', 'coop', 'esselunga', 'lidl', 'colazione', 'pranzo', 'cena', 'pizza', 'ristorante', 'bar', 'caffè', 'caffe', 'snack', 'cibo', 'mangiare', 'spesa alimentare'],
-  Casa: ['affitto', 'luce', 'gas', 'acqua', 'internet', 'wifi', 'telefono fisso', 'condominio', 'mutuo', 'bolletta'],
-  Trasporti: ['benzina', 'carburante', 'treno', 'bus', 'metro', 'taxi', 'uber', 'autostrada', 'parcheggio', 'auto', 'moto', 'bici', 'monopattino'],
-  Salute: ['farmacia', 'medicine', 'medico', 'dottore', 'dentista', 'visita', 'analisi', 'ospedale', 'occhiali'],
-  Abbigliamento: ['vestiti', 'scarpe', 'camicia', 'pantaloni', 'giacca', 'jeans', 'maglietta', 'zara', 'h&m'],
-  Intrattenimento: ['netflix', 'spotify', 'disney', 'amazon prime', 'cinema', 'teatro', 'concerti', 'abbonamento', 'giochi', 'streaming'],
-  Tecnologia: ['telefono', 'computer', 'laptop', 'tablet', 'cuffie', 'accessori', 'apple', 'samsung', 'amazon', 'elettronica'],
+  Cibo: ['supermercato', 'coop', 'esselunga', 'lidl', 'conad', 'colazione', 'pranzo', 'cena', 'pizza', 'ristorante', 'bar', 'caffè', 'caffe', 'snack', 'cibo', 'mangiare', 'panino', 'sushi', 'gelato', 'spesa alimentare'],
+  Casa: ['affitto', 'luce', 'gas', 'acqua', 'internet', 'wifi', 'telefono fisso', 'condominio', 'mutuo', 'bolletta', 'netflix', 'spotify', 'disney', 'prime', 'abbonamento', 'mobili', 'ikea', 'pulizie', 'detersivo'],
+  Moto: ['moto', 'scooter', 'casco', 'motorino'],
+  Macchina: ['benzina', 'carburante', 'diesel', 'gasolio', 'autostrada', 'parcheggio', 'auto', 'macchina', 'tagliando', 'gomme', 'pneumatici', 'bollo', 'assicurazione', 'revisione', 'meccanico', 'taxi', 'uber', 'bus', 'metro'],
+  Viaggi: ['hotel', 'albergo', 'volo', 'aereo', 'treno', 'biglietto', 'vacanza', 'viaggio', 'airbnb', 'crociera', 'pernottamento'],
+  Personale: ['vestiti', 'scarpe', 'camicia', 'pantaloni', 'giacca', 'jeans', 'maglietta', 'zara', 'h&m', 'farmacia', 'medicine', 'medico', 'dentista', 'occhiali', 'parrucchiere', 'barbiere', 'palestra', 'profumo'],
+  Svago: ['cinema', 'teatro', 'concerto', 'concerti', 'gioco', 'giochi', 'videogioco', 'libro', 'museo', 'discoteca', 'aperitivo'],
   Stipendio: ['stipendio', 'salario', 'paga', 'cedolino'],
   Freelance: ['freelance', 'progetto', 'cliente', 'fattura', 'consulenza', 'lavoro extra'],
+  Investimenti: ['investimento', 'azioni', 'etf', 'crypto', 'bitcoin', 'dividendo'],
+  Regalo: ['regalo', 'regalato'],
+  Rimborso: ['rimborso', 'rimborsato'],
 }
 
 // ─── Date parsing ─────────────────────────────────────────────────────────────
