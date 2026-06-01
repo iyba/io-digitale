@@ -7,12 +7,20 @@
   "background_color": "#07070f",
   "theme_color": "#07070f",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "lifestyle", "finance"],
+  "lang": "it",
   "icons": [
     {
       "src": "favicon.svg",
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
+    },
+    {
+      "src": "icon-maskable.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
     }
   ]
 }

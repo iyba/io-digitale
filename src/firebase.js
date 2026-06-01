@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 
@@ -24,5 +24,16 @@ if (import.meta.env.VITE_RECAPTCHA_SITE_KEY) {
   })
 }
 
-export const db = getFirestore(app)
+// Firestore con cache offline (IndexedDB): i dati restano disponibili senza rete
+let firestore
+try {
+  firestore = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+  })
+} catch {
+  // Fallback (es. navigazione privata che blocca IndexedDB)
+  firestore = getFirestore(app)
+}
+
+export const db = firestore
 export const auth = getAuth(app)

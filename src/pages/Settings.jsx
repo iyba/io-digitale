@@ -8,7 +8,26 @@ import { getTheme, setTheme as persistTheme } from '../theme'
 export default function Settings({ user }) {
   const [perms, setPerms] = useState({ mic: 'unknown', geo: 'unknown', notif: 'unknown' })
   const [theme, setTheme] = useState(getTheme())
+  const [canInstall, setCanInstall] = useState(!!window.__installPrompt)
   const { requestWeather } = useWeather()
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+
+  useEffect(() => {
+    const onInstallable = () => setCanInstall(true)
+    window.addEventListener('installable', onInstallable)
+    return () => window.removeEventListener('installable', onInstallable)
+  }, [])
+
+  async function handleInstall() {
+    const p = window.__installPrompt
+    if (!p) return
+    p.prompt()
+    await p.userChoice
+    window.__installPrompt = null
+    setCanInstall(false)
+  }
 
   function changeTheme(t) {
     setTheme(t)
@@ -67,6 +86,28 @@ export default function Settings({ user }) {
       <div style={{ marginTop: '0.25rem' }}>
         <h2 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>Impostazioni</h2>
       </div>
+
+      {/* Installa app */}
+      {!isStandalone && (
+        <Section title="App">
+          {canInstall ? (
+            <RowButton icon="⬇️" label="Installa sul dispositivo" color="var(--text)" onClick={handleInstall} />
+          ) : isIOS ? (
+            <div style={{ padding: '0.875rem 1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text)', fontWeight: 600 }}>📲 Installa l'app</p>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.78rem', color: 'rgba(var(--text-rgb),0.5)', lineHeight: 1.5 }}>
+                Tocca <strong>Condividi</strong> ⬆️ in basso in Safari, poi <strong>"Aggiungi a schermata Home"</strong>.
+              </p>
+            </div>
+          ) : (
+            <div style={{ padding: '0.875rem 1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(var(--text-rgb),0.5)' }}>
+                Usa il menu del browser → "Installa app" per aggiungerla al dispositivo.
+              </p>
+            </div>
+          )}
+        </Section>
+      )}
 
       {/* Aspetto */}
       <Section title="Aspetto">
