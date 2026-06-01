@@ -8,6 +8,7 @@ import Finance from './pages/Finance'
 import Settings from './pages/Settings'
 import Navbar from './components/Navbar'
 import VoiceButton from './components/VoiceButton'
+import TaskReminders from './components/TaskReminders'
 import VoiceConfirm from './components/VoiceConfirm'
 import AddTaskModal from './components/AddTaskModal'
 import AddExpenseModal from './components/AddExpenseModal'
@@ -240,6 +241,7 @@ export default function App() {
       </main>
 
       <Navbar tab={tab} setTab={setTab} />
+      <TaskReminders user={user} />
       <VoiceButton onResult={handleVoiceResult} autoListen={autoListen} onAutoListenDone={() => setAutoListen(false)} />
 
       {/* Auto-save confirmation toast */}
