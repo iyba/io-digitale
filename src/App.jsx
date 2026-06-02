@@ -85,12 +85,27 @@ export default function App() {
 
     // Auto-save immediately
     const colName = parsed.kind === 'task' ? 'tasks' : 'expenses'
+    // I campi di ricorrenza non vanno nel documento spesa: vengono estratti
+    const { recurring: isRec, dayOfMonth, ...docData } = parsed.data
     try {
       const ref = await addDoc(collection(db, colName), {
-        ...sanitizeData(parsed.data),
+        ...sanitizeData(docData),
         userId: user.uid,
         createdAt: serverTimestamp(),
       })
+
+      // Spesa ricorrente (es. "abbonamento Netflix 15 euro al mese") → crea il template mensile
+      if (parsed.kind === 'expense' && isRec) {
+        await addDoc(collection(db, 'recurring'), {
+          kind: 'expense', frequency: 'monthly',
+          dayOfMonth: dayOfMonth || 1,
+          type: docData.type, amount: docData.amount,
+          category: docData.category, description: docData.description || '',
+          active: true, lastGenerated: (docData.date || '').slice(0, 7),
+          userId: user.uid, createdAt: serverTimestamp(),
+        })
+      }
+
       setLastSavedId(ref.id)
       setLastSavedCol(colName)
       setVoiceParsed({ ...parsed, rawText })

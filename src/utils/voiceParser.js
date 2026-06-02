@@ -18,6 +18,7 @@ const EXPENSE_SIGNALS = [
   'acquistato', 'comprato', 'euro', '€', 'eur',
   'stipendio', 'guadagnato', 'guadagno', 'entrata', 'incassato',
   'ricevuto', 'rimborso', 'fattura', 'bolletta',
+  'abbonamento', 'al mese', 'ogni mese', 'mensile',
 ]
 
 const TASK_CATEGORY_KEYWORDS = {
@@ -249,16 +250,24 @@ export function parseVoiceAuto(rawText) {
   if (isExpense) {
     const { amount, type } = parseAmountAndType(rawText)
     const category = detectExpenseCategory(rawText)
-    const date = parseDate(rawText) || new Date().toISOString().split('T')[0]
+    const date = parseDate(rawText) || toISO(new Date())
+    const isRecurring = /\b(abbonamento|al\s+mese|ogni\s+mese|mensile|mensilmente|tutti\s+i\s+mesi|ricorrente)\b/i.test(lower)
     const description = cleanTitle(rawText
       .replace(/(\d+(?:[.,]\d{1,2})?)\s*(?:euro|€|eur)?/gi, '')
-      .replace(/\b(ho speso|ho pagato|pagato|speso|costato|costa|acquistato|comprato)\b/gi, '')
+      .replace(/\b(ho\s+speso|ho\s+pagato|pagato|speso|costato|costa|acquistato|comprato|abbonamento\s+(?:a|di|per)?)\b/gi, '')
+      .replace(/\b(al\s+mese|ogni\s+mese|mensile|mensilmente|tutti\s+i\s+mesi|ricorrente)\b/gi, '')
     ) || category
+
+    const data = { type, amount, category, description, date }
+    if (isRecurring) {
+      data.recurring = true
+      data.dayOfMonth = parseInt(date.slice(8, 10)) || 1
+    }
 
     return {
       kind: 'expense',
-      data: { type, amount, category, description, date },
-      summary: `${type === 'entrata' ? '💰 Entrata' : '💸 Spesa'} €${amount?.toFixed(2)} — ${category}`,
+      data,
+      summary: `${isRecurring ? '🔄 ' : ''}${type === 'entrata' ? '💰 Entrata' : '💸 Spesa'} €${amount?.toFixed(2)} — ${category}${isRecurring ? ' / mese' : ''}`,
     }
   } else {
     const deadline = parseDate(rawText)

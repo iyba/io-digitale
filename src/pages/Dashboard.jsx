@@ -23,9 +23,6 @@ export default function Dashboard({ user, onNewTask, onEditTask, onSignOut }) {
   const { weather, status: weatherStatus, requestWeather } = useWeather()
 
   const now = new Date()
-  const hour = now.getHours()
-  const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
-  const name = user.displayName?.split(' ')[0] || ''
 
   const overdueTasks = useMemo(() =>
     tasks.filter(t => !t.completed && t.deadline && isPast(parseISO(t.deadline)) && !isToday(parseISO(t.deadline)))
@@ -62,35 +59,22 @@ export default function Dashboard({ user, onNewTask, onEditTask, onSignOut }) {
       }}>
         <div style={{ position: 'absolute', top: -50, right: -30, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.35), transparent 70%)', pointerEvents: 'none' }} />
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
-          <div>
-            <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.5)', fontSize: '0.76rem', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 500 }}>
-              {format(now, 'EEEE, d MMMM', { locale: it })}
-            </p>
-            <h1 style={{ margin: '0.2rem 0 0', fontSize: '1.5rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-              {greeting}{name ? `, ${name}` : ''} 👋
-            </h1>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+          <p style={{ margin: 0, color: 'rgba(var(--text-rgb),0.6)', fontSize: '0.95rem', fontWeight: 700, textTransform: 'capitalize', letterSpacing: '-0.01em' }}>
+            {format(now, 'EEEE d MMMM', { locale: it })}
+          </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-            <button onClick={onSignOut} style={{
-              background: 'rgba(var(--surface-rgb),0.1)', border: '1px solid var(--border)',
-              borderRadius: '0.75rem', padding: '0.35rem 0.7rem', color: 'rgba(var(--text-rgb),0.5)',
-              cursor: 'pointer', fontSize: '0.72rem', fontWeight: 500,
-            }}>Esci</button>
-
-            {weatherStatus === 'ok' && weather ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.82rem', color: 'rgba(var(--text-rgb),0.7)', fontWeight: 600 }}>
-                <span style={{ fontSize: '1rem' }}>{wCurrent.icon}</span>
-                {weather.current.temp}°
-                {weather.today.rainProb >= 40 && <span style={{ color: '#fbbf24', fontSize: '0.72rem' }}>· 🌧️{weather.today.rainProb}%</span>}
-              </div>
-            ) : (weatherStatus === 'idle' || weatherStatus === 'denied') ? (
-              <button onClick={requestWeather} style={{ background: 'none', border: 'none', color: 'rgba(var(--text-rgb),0.4)', fontSize: '0.72rem', cursor: 'pointer', padding: 0 }}>
-                📍 Meteo
-              </button>
-            ) : null}
-          </div>
+          {weatherStatus === 'ok' && weather ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.85rem', color: 'rgba(var(--text-rgb),0.7)', fontWeight: 600 }}>
+              <span style={{ fontSize: '1.05rem' }}>{wCurrent.icon}</span>
+              {weather.current.temp}°
+              {weather.today.rainProb >= 40 && <span style={{ color: '#fbbf24', fontSize: '0.72rem' }}>· 🌧️{weather.today.rainProb}%</span>}
+            </div>
+          ) : (weatherStatus === 'idle' || weatherStatus === 'denied') ? (
+            <button onClick={requestWeather} style={{ background: 'none', border: 'none', color: 'rgba(var(--text-rgb),0.4)', fontSize: '0.75rem', cursor: 'pointer', padding: 0 }}>
+              📍 Meteo
+            </button>
+          ) : null}
         </div>
 
         {/* Mini stats — solo impegni */}
