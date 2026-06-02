@@ -108,29 +108,58 @@ function parseDate(text) {
   return ''
 }
 
+const HOUR_WORDS = {
+  una: 1, un: 1, uno: 1, due: 2, tre: 3, quattro: 4, cinque: 5, sei: 6,
+  sette: 7, otto: 8, nove: 9, dieci: 10, undici: 11, dodici: 12,
+}
+const HOUR_NUM = '(\\d{1,2}|' + Object.keys(HOUR_WORDS).join('|') + ')'
+const PREFIX = "(?:all[ea']\\s*|alle\\s+ore\\s+|ore\\s+)"
+
+function pad(n) { return String(n).padStart(2, '0') }
+
+function toHour(token) {
+  if (/^\d+$/.test(token)) { const n = parseInt(token); return n >= 0 && n <= 23 ? n : null }
+  return HOUR_WORDS[token] ?? null
+}
+
+// Converte 1-12 in formato 24h con euristica per appuntamenti
+function applyMeridian(h, lower) {
+  if (/\b(di\s+mattina|del\s+mattino|della\s+mattina|stamattina|mattina)\b/.test(lower)) return h === 12 ? 0 : h
+  if (/\b(pomeriggio|sera|stasera|notte|pranzo|cena)\b/.test(lower)) return h < 12 ? h + 12 : h
+  // senza indicazioni: 1-7 → pomeriggio (tipico per appuntamenti), resto invariato
+  if (h >= 1 && h <= 7) return h + 12
+  return h
+}
+
 function parseTime(text) {
   const lower = text.toLowerCase()
 
-  // "alle 10:30" / "alle 10 e 30"
-  const fullTime = lower.match(/alle?\s+(\d{1,2})[:\s](\d{2})/)
-  if (fullTime) return `${String(parseInt(fullTime[1])).padStart(2,'0')}:${fullTime[2]}`
+  if (/\bmezzogiorno\b/.test(lower)) return '12:00'
+  if (/\bmezzanotte\b/.test(lower)) return '00:00'
 
-  // "alle 10 e mezza"
-  const eMezza = lower.match(/alle?\s+(\d{1,2})\s+e\s+mez/)
-  if (eMezza) return `${String(parseInt(eMezza[1])).padStart(2,'0')}:30`
+  // formato esplicito "10:30" / "10.30" → 24h, nessuna euristica
+  let m = lower.match(/\b(\d{1,2})[:.](\d{2})\b/)
+  if (m) return pad(parseInt(m[1])) + ':' + m[2]
 
-  // "alle 10 e un quarto"
-  const eQuarto = lower.match(/alle?\s+(\d{1,2})\s+e\s+(?:un\s+)?quarto/)
-  if (eQuarto) return `${String(parseInt(eQuarto[1])).padStart(2,'0')}:15`
+  // "alle X e mezza"
+  m = lower.match(new RegExp(PREFIX + HOUR_NUM + '\\s+e\\s+mezz'))
+  if (m) { const h = toHour(m[1]); if (h != null) return pad(applyMeridian(h, lower)) + ':30' }
 
-  // "alle 10" solo
-  const semplice = lower.match(/alle?\s+(\d{1,2})\b/)
-  if (semplice) {
-    let h = parseInt(semplice[1])
-    if (/di\s+pomeriggio|del\s+pomeriggio/.test(lower) && h < 12) h += 12
-    if (/di\s+sera|stasera/.test(lower) && h < 12) h += 12
-    return `${String(h).padStart(2,'0')}:00`
-  }
+  // "alle X e un quarto" / "e quarto"
+  m = lower.match(new RegExp(PREFIX + HOUR_NUM + '\\s+e\\s+(?:un\\s+)?quarto'))
+  if (m) { const h = toHour(m[1]); if (h != null) return pad(applyMeridian(h, lower)) + ':15' }
+
+  // "alle X meno un quarto"
+  m = lower.match(new RegExp(PREFIX + HOUR_NUM + '\\s+meno\\s+(?:un\\s+)?quarto'))
+  if (m) { let h = toHour(m[1]); if (h != null) { h = (applyMeridian(h, lower) + 23) % 24; return pad(h) + ':45' } }
+
+  // "alle X e Y" (minuti a cifre)
+  m = lower.match(new RegExp(PREFIX + HOUR_NUM + '\\s+e\\s+(\\d{1,2})\\b'))
+  if (m) { const h = toHour(m[1]); const min = parseInt(m[2]); if (h != null && min < 60) return pad(applyMeridian(h, lower)) + ':' + pad(min) }
+
+  // "alle X" semplice
+  m = lower.match(new RegExp(PREFIX + HOUR_NUM + '\\b'))
+  if (m) { const h = toHour(m[1]); if (h != null) return pad(applyMeridian(h, lower)) + ':00' }
 
   return ''
 }
@@ -186,20 +215,26 @@ function detectPriority(text) {
 
 function cleanTitle(text) {
   return text
-    // Remove date/time phrases
-    .replace(/\b(domani|dopodomani|oggi|l'altro ieri|ieri)\b/gi, '')
-    .replace(/\b(lunedì|martedì|mercoledì|giovedì|venerdì|sabato|domenica)\b/gi, '')
-    .replace(/tra\s+\d+\s+(giorn|settiman)\w+/gi, '')
+    // Frasi imperative iniziali / filler ("mettimi", "ricordami di", ...)
+    .replace(/\b(mettimi|metti|segnami|segna|aggiungimi|aggiungi|appunta(?:mi)?|prendi\s+nota(?:\s+di)?|ricordami(?:\s+di)?|ricordati(?:\s+di)?|non\s+dimenticare(?:re)?|mi\s+ricord[oi]\s+di|devo|ho\s+da|voglio|promemoria|memo|crea(?:mi)?)\b/gi, '')
+    // Date relative
+    .replace(/\b(dopodomani|domani|oggi|l'altro\s+ieri|ieri)\b/gi, '')
+    .replace(/\b(luned|marted|mercoled|gioved|venerd)[iì]/gi, '')
+    .replace(/\b(sabato|domenica)\b/gi, '')
+    .replace(/\b(prossim[oa]|quest[oa])\s+(settimana|mese)/gi, '')
+    .replace(/\btra\s+\d+\s+(giorn|settiman|mes)\w+/gi, '')
+    .replace(/\bil\s+(giorno\s+)?\d{1,2}(?:\s+del\s+mese)?/gi, '')
     .replace(/\d{1,2}\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)/gi, '')
-    .replace(/alle?\s+\d{1,2}(?:[:\s]\d{2})?\s*(?:di\s+(?:pomeriggio|mattina|sera))?/gi, '')
-    .replace(/il\s+\d{1,2}(?:\s+del\s+mese)?/gi, '')
-    // Remove filler words
-    .replace(/\b(devo|ho|voglio|ricordami\s+di|non\s+dimenticare(?:re)?|mi\s+ricord[oi]\s+di|promemoria|memo)\b/gi, '')
-    // Capitalize first letter
+    // Orari (cifre o parole): "alle 10:30", "alle cinque", "alle tre e mezza", "alle dieci e un quarto", "a mezzogiorno"
+    .replace(/\b(a\s+)?(mezzogiorno|mezzanotte)\b/gi, '')
+    .replace(new RegExp(PREFIX + HOUR_NUM + '(\\s+e\\s+(mezz\\w*|(?:un\\s+)?quarto|\\d{1,2}))?(\\s+meno\\s+(?:un\\s+)?quarto)?(\\s+(?:di|del|della)\\s+(?:mattina|mattino|pomeriggio|sera|notte))?', 'gi'), '')
+    // Pulizia spazi + maiuscola
     .replace(/\s+/g, ' ').trim()
-    .replace(/^[a-z]/, c => c.toUpperCase())
-    // Remove leading/trailing punctuation
+    // Rimuovi preposizioni/articoli penzolanti a inizio/fine
+    .replace(/^(di|del|della|il|lo|la|le|gli|i|a|al|alle|con|per|da|e)\s+/i, '')
+    .replace(/\s+(di|del|della|il|lo|la|le|gli|i|a|al|alle|con|per|da|e)$/i, '')
     .replace(/^[\s,.:]+|[\s,.:]+$/g, '')
+    .replace(/^[a-zà-ù]/, c => c.toUpperCase())
 }
 
 // ─── Main auto-parse function ─────────────────────────────────────────────────
@@ -262,7 +297,8 @@ export function parseVoiceToExpense(text) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function toISO(date) {
-  return date.toISOString().split('T')[0]
+  // Componenti locali (no UTC) per evitare lo slittamento di un giorno col fuso
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
 function addDays(date, n) {
