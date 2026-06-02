@@ -137,9 +137,9 @@ function parseTime(text) {
   if (/\bmezzogiorno\b/.test(lower)) return '12:00'
   if (/\bmezzanotte\b/.test(lower)) return '00:00'
 
-  // formato esplicito "10:30" / "10.30" → 24h, nessuna euristica
+  // formato esplicito "10:30" / "10.30" (euristica AM/PM solo se ora 1-7)
   let m = lower.match(/\b(\d{1,2})[:.](\d{2})\b/)
-  if (m) return pad(parseInt(m[1])) + ':' + m[2]
+  if (m) return pad(applyMeridian(parseInt(m[1]), lower)) + ':' + m[2]
 
   // "alle X e mezza"
   m = lower.match(new RegExp(PREFIX + HOUR_NUM + '\\s+e\\s+mezz'))
@@ -227,6 +227,7 @@ function cleanTitle(text) {
     .replace(/\d{1,2}\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)/gi, '')
     // Orari (cifre o parole): "alle 10:30", "alle cinque", "alle tre e mezza", "alle dieci e un quarto", "a mezzogiorno"
     .replace(/\b(a\s+)?(mezzogiorno|mezzanotte)\b/gi, '')
+    .replace(new RegExp(PREFIX + '?\\d{1,2}[:.]\\d{2}(\\s+(?:di|del|della)\\s+(?:mattina|mattino|pomeriggio|sera|notte))?', 'gi'), '')
     .replace(new RegExp(PREFIX + HOUR_NUM + '(\\s+e\\s+(mezz\\w*|(?:un\\s+)?quarto|\\d{1,2}))?(\\s+meno\\s+(?:un\\s+)?quarto)?(\\s+(?:di|del|della)\\s+(?:mattina|mattino|pomeriggio|sera|notte))?', 'gi'), '')
     // Pulizia spazi + maiuscola
     .replace(/\s+/g, ' ').trim()
