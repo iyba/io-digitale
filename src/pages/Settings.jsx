@@ -117,7 +117,7 @@ export default function Settings({ user }) {
             onClick={() => changeTheme('dark')}
             icon="🌙"
             label="Scuro"
-            preview={{ bg: '#07070f', card: 'rgba(255,255,255,0.08)', text: '#f1f1f8' }}
+            preview={{ bg: '#1b1b26', card: 'rgba(255,255,255,0.1)', text: '#f3f3f8' }}
           />
           <ThemeOption
             active={theme === 'light'}
