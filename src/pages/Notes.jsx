@@ -2,15 +2,26 @@ import { useState, useMemo } from 'react'
 import { useCollection } from '../hooks/useCollection'
 
 export default function Notes({ user }) {
-  const { items, add, remove } = useCollection('tasks', user.uid)
+  const { items, add, update, remove } = useCollection('tasks', user.uid)
   const notes = useMemo(() => items.filter(t => t.isNote), [items])
   const [text, setText] = useState('')
+  const [editId, setEditId] = useState(null)
+  const [editText, setEditText] = useState('')
 
   function addNote() {
     const t = text.trim()
     if (!t) return
     add({ title: t, isNote: true, category: 'Nota', priority: 'bassa', completed: false })
     setText('')
+  }
+
+  function startEdit(n) { setEditId(n.id); setEditText(n.title) }
+
+  function saveEdit() {
+    const t = editText.trim()
+    if (t && t !== '') update(editId, { title: t })
+    setEditId(null)
+    setEditText('')
   }
 
   return (
@@ -56,9 +67,20 @@ export default function Notes({ user }) {
               borderLeft: '3px solid #fbbf24', borderRadius: '1rem', padding: '0.875rem 1rem',
             }}>
               <span style={{ fontSize: '0.95rem', marginTop: 1 }}>📝</span>
-              <p style={{ flex: 1, margin: 0, fontSize: '0.9rem', color: 'var(--text)', lineHeight: 1.4, wordBreak: 'break-word' }}>
-                {n.title}
-              </p>
+              {editId === n.id ? (
+                <input
+                  value={editText}
+                  onChange={e => setEditText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && saveEdit()}
+                  onBlur={saveEdit}
+                  autoFocus
+                  style={{ flex: 1, fontSize: '0.9rem' }}
+                />
+              ) : (
+                <p onClick={() => startEdit(n)} style={{ flex: 1, margin: 0, fontSize: '0.9rem', color: 'var(--text)', lineHeight: 1.4, wordBreak: 'break-word', cursor: 'pointer' }}>
+                  {n.title}
+                </p>
+              )}
               <button onClick={() => remove(n.id)} style={{
                 background: 'none', border: 'none', color: 'rgba(var(--text-rgb),0.3)',
                 cursor: 'pointer', fontSize: '1rem', flexShrink: 0, padding: '0 0.2rem',

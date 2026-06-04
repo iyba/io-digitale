@@ -145,7 +145,7 @@ export default function Finance({ user, onNew, onEdit }) {
                 </span>
               </div>
               {recurringExpenses.map(r => (
-                <RecurringRow key={r.id} item={r} onDelete={() => removeRecurring(r.id)} />
+                <RecurringRow key={r.id} item={r} onDelete={() => { if (confirm(`Eliminare l'abbonamento "${r.description || r.category}"?`)) removeRecurring(r.id) }} />
               ))}
             </div>
           )}
