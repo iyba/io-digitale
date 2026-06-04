@@ -95,16 +95,18 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
 
   return (
     <>
-      {/* GRANDE PROMPT a tutto schermo (Action Button) */}
+      {/* GRANDE PROMPT a tutto schermo — tap ovunque per parlare */}
       {bigPrompt && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 100,
-          background: 'rgba(var(--bg-rgb),0.96)', backdropFilter: 'blur(8px)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          gap: '2rem', padding: '2rem',
-        }}>
+        <div
+          onClick={() => { if (!isListening && !errorMsg) start() }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100, cursor: 'pointer',
+            background: 'rgba(var(--bg-rgb),0.96)', backdropFilter: 'blur(8px)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: '2rem', padding: '2rem',
+          }}>
           <button
-            onClick={() => { if (!isListening) start() }}
+            onClick={(e) => { e.stopPropagation(); if (!isListening) start() }}
             style={{
               width: 140, height: 140, borderRadius: '50%', border: 'none', cursor: 'pointer',
               background: isListening
@@ -146,16 +148,16 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
               </p>
             ) : (
               <p style={{ margin: 0, color: 'var(--text)', fontSize: '1.2rem', fontWeight: 700 }}>
-                Tocca e parla 🎤
+                Tocca lo schermo e parla 🎤
               </p>
             )}
             <p style={{ margin: '0.5rem 0 0', color: 'rgba(var(--text-rgb),0.4)', fontSize: '0.82rem' }}>
-              Es: "ho speso 50 euro di benzina"
+              Es: "riunione domani alle tre" · "speso 50 euro benzina"
             </p>
           </div>
 
           <button
-            onClick={() => { release(); setBigPrompt(false); setS('idle'); setTranscript(''); onAutoListenDone?.() }}
+            onClick={(e) => { e.stopPropagation(); release(); setBigPrompt(false); setS('idle'); setTranscript(''); onAutoListenDone?.() }}
             style={{
               background: 'rgba(var(--surface-rgb),0.08)', border: '1px solid rgba(var(--surface-rgb),0.12)',
               borderRadius: '0.875rem', padding: '0.625rem 1.5rem', color: 'rgba(var(--text-rgb),0.6)',

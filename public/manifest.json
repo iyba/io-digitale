@@ -2,7 +2,7 @@
   "name": "Il Mio Io Digitale",
   "short_name": "Io Digitale",
   "description": "Impegni, scadenze e finanze con input vocale",
-  "start_url": "/",
+  "start_url": "/?listen=1",
   "display": "standalone",
   "background_color": "#1b1b26",
   "theme_color": "#1b1b26",
