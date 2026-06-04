@@ -21,11 +21,21 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
 
   const supported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
 
+  // Rilascia completamente il microfono
+  const release = () => {
+    const r = recogRef.current
+    recogRef.current = null
+    if (r) { try { r.onend = null; r.stop(); r.abort() } catch { /* ignora */ } }
+  }
+
   const start = useCallback(() => {
     if (stateRef.current === 'listening') {
-      recogRef.current?.stop()
+      release()
+      setS('idle')
       return
     }
+    // assicura che non resti un'istanza precedente attiva
+    release()
     setErrorMsg('')
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     const recog = new SpeechRecognition()
@@ -41,7 +51,8 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
       setTranscript(t)
       if (e.results[e.results.length - 1].isFinal) {
         setS('processing')
-        setTimeout(() => { onResult(t); setS('idle'); setTranscript(''); setBigPrompt(false) }, 300)
+        try { recog.stop() } catch { /* ignora */ }
+        setTimeout(() => { onResult(t); setS('idle'); setTranscript(''); setBigPrompt(false); release() }, 300)
       }
     }
 
@@ -50,10 +61,12 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
       if (msg) setErrorMsg(msg)
       setS('idle')
       setTranscript('')
+      release()
       setTimeout(() => setErrorMsg(''), 3000)
     }
 
     recog.onend = () => {
+      recogRef.current = null
       if (stateRef.current === 'listening') setS('idle')
     }
 
@@ -62,8 +75,12 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
     } catch {
       setErrorMsg('Microfono non disponibile')
       setS('idle')
+      release()
     }
   }, [onResult])
+
+  // Rilascia il microfono se il componente viene smontato
+  useEffect(() => () => release(), [])
 
   // Quando arriva ?listen=1 → mostra il grande prompt "tocca e parla"
   useEffect(() => {
@@ -138,7 +155,7 @@ export default function VoiceButton({ onResult, autoListen, onAutoListenDone }) 
           </div>
 
           <button
-            onClick={() => { recogRef.current?.stop(); setBigPrompt(false); setS('idle'); setTranscript(''); onAutoListenDone?.() }}
+            onClick={() => { release(); setBigPrompt(false); setS('idle'); setTranscript(''); onAutoListenDone?.() }}
             style={{
               background: 'rgba(var(--surface-rgb),0.08)', border: '1px solid rgba(var(--surface-rgb),0.12)',
               borderRadius: '0.875rem', padding: '0.625rem 1.5rem', color: 'rgba(var(--text-rgb),0.6)',
