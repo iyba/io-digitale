@@ -118,6 +118,16 @@ const PREFIX = "(?:all[ea']\\s*|alle\\s+ore\\s+|ore\\s+)"
 
 function pad(n) { return String(n).padStart(2, '0') }
 
+// Giorno del mese per le ricorrenze: "ogni 4 del mese", "ogni 4", "il 4 del mese"
+function parseDayOfMonth(text) {
+  const lower = text.toLowerCase()
+  let m = lower.match(/\bogni\s+(\d{1,2})\b/)
+  if (m) { const d = parseInt(m[1]); if (d >= 1 && d <= 31) return d }
+  m = lower.match(/\b(?:il\s+)?(?:giorno\s+)?(\d{1,2})\s+(?:del|di\s+ogni|d['i])\s+mese/)
+  if (m) { const d = parseInt(m[1]); if (d >= 1 && d <= 31) return d }
+  return null
+}
+
 function toHour(token) {
   if (/^\d+$/.test(token)) { const n = parseInt(token); return n >= 0 && n <= 23 ? n : null }
   return HOUR_WORDS[token] ?? null
@@ -266,23 +276,35 @@ export function parseVoiceAuto(rawText) {
     const { amount, type } = parseAmountAndType(rawText)
     const category = detectExpenseCategory(rawText)
     const date = parseDate(rawText) || toISO(new Date())
-    const isRecurring = /\b(abbonamento|al\s+mese|ogni\s+mese|mensile|mensilmente|tutti\s+i\s+mesi|ricorrente)\b/i.test(lower)
+    const isRecurring = /\b(abbonamento|al\s+mese|ogni\s+mese|del\s+mese|ogni\s+\d{1,2}|mensile|mensilmente|tutti\s+i\s+mesi|ricorrente)\b/i.test(lower)
     const description = cleanTitle(rawText
+      .replace(/\bogni\s+\d{1,2}(\s+del\s+mese)?\b/gi, '')
+      .replace(/\b(il\s+)?\d{1,2}\s+del\s+mese\b/gi, '')
+      .replace(/\b(al\s+mese|ogni\s+mese|del\s+mese|mensile|mensilmente|tutti\s+i\s+mesi|ricorrente)\b/gi, '')
       .replace(/(\d+(?:[.,]\d{1,2})?)\s*(?:euro|€|eur)?/gi, '')
       .replace(/\b(ho\s+speso|ho\s+pagato|pagato|speso|costato|costa|acquistato|comprato|abbonamento\s+(?:a|di|per)?)\b/gi, '')
-      .replace(/\b(al\s+mese|ogni\s+mese|mensile|mensilmente|tutti\s+i\s+mesi|ricorrente)\b/gi, '')
     ) || category
 
-    const data = { type, amount, category, description, date }
+    let firstDate = date
+    let dayOfMonth = null
+    if (isRecurring) {
+      dayOfMonth = parseDayOfMonth(rawText) || parseInt(date.slice(8, 10)) || 1
+      // prima istanza = giorno indicato del mese corrente
+      const n = new Date()
+      const dim = new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate()
+      firstDate = `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(Math.min(dayOfMonth, dim))}`
+    }
+
+    const data = { type, amount, category, description, date: firstDate }
     if (isRecurring) {
       data.recurring = true
-      data.dayOfMonth = parseInt(date.slice(8, 10)) || 1
+      data.dayOfMonth = dayOfMonth
     }
 
     return {
       kind: 'expense',
       data,
-      summary: `${isRecurring ? '🔄 ' : ''}${type === 'entrata' ? '💰 Entrata' : '💸 Spesa'} €${amount?.toFixed(2)} — ${category}${isRecurring ? ' / mese' : ''}`,
+      summary: `${isRecurring ? '🔄 ' : ''}${type === 'entrata' ? '💰 Entrata' : '💸 Spesa'} €${amount?.toFixed(2)} — ${category}${isRecurring ? ` / il ${dayOfMonth}` : ''}`,
     }
   } else {
     const deadline = parseDate(rawText)
