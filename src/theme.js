@@ -1,7 +1,13 @@
 const KEY = 'theme'
 
 export function getTheme() {
-  return localStorage.getItem(KEY) || 'dark'
+  const saved = localStorage.getItem(KEY)
+  if (saved) return saved
+  // Primo avvio: segui il tema di sistema del telefono
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light'
+  } catch {}
+  return 'dark'
 }
 
 export function applyTheme(theme) {

@@ -183,10 +183,16 @@ function parseAmountAndType(text) {
   // Detect income
   const isIncome = /stipendio|guadagnato|guadagno|entrata|incassato|ricevuto|rimborso|fattura|mi\s+hanno\s+pagato/.test(lower)
 
-  // Extract amount
-  // "10 euro" / "10€" / "10,50 euro" / "dieci euro"
-  const amountMatch = lower.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:euro|€|eur)?/)
-  let amount = amountMatch ? parseFloat(amountMatch[1].replace(',', '.')) : null
+  // Centesimi detti a voce: "8 euro e 99", "15 e 50"
+  let amount = null
+  const cents = lower.match(/(\d+)\s*(?:euro|€|eur)?\s+e\s+(\d{1,2})\b/)
+  if (cents) {
+    amount = parseFloat(`${cents[1]}.${cents[2]}`)
+  } else {
+    // "10 euro" / "10€" / "10,50 euro"
+    const amountMatch = lower.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:euro|€|eur)?/)
+    amount = amountMatch ? parseFloat(amountMatch[1].replace(',', '.')) : null
+  }
 
   // Word numbers (basic)
   if (!amount) {

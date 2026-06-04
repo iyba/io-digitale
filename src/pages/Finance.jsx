@@ -214,6 +214,21 @@ export default function Finance({ user, onNew, onEdit }) {
       {/* LISTA VIEW */}
       {view === 'lista' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {totaleSpese > 0 && byCat[0] && (() => {
+            const prevSpese = last6Months[4]?.spese || 0
+            const trend = prevSpese > 0 ? Math.round((totaleSpese - prevSpese) / prevSpese * 100) : null
+            const top = byCat[0]
+            return (
+              <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '1rem', padding: '0.7rem 1rem', fontSize: '0.8rem', color: 'rgba(var(--text-rgb),0.6)' }}>
+                💡 Più speso in <strong style={{ color: 'var(--text)' }}>{top.name}</strong> (€{top.value.toFixed(0)})
+                {trend != null && (
+                  <span style={{ color: trend > 0 ? '#fca5a5' : '#86efac', fontWeight: 600 }}>
+                    {' · '}{trend >= 0 ? '+' : ''}{trend}% vs mese scorso
+                  </span>
+                )}
+              </div>
+            )
+          })()}
           {recurringExpenses.length > 0 && (
             <div style={{ background: 'rgba(var(--surface-rgb),0.02)', border: '1px solid rgba(124,58,237,0.15)', borderRadius: '1.25rem', overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 1rem', borderBottom: '1px solid rgba(var(--surface-rgb),0.06)' }}>
