@@ -31,6 +31,33 @@ export default function Finance({ user, onNew, onEdit }) {
   const [selectedYear] = useState(now.getFullYear())
   const [view, setView] = useState('lista')
 
+  // Budget mensile (salvato sul dispositivo)
+  const [budget, setBudget] = useState(() => Number(localStorage.getItem('budget')) || 0)
+  const [editingBudget, setEditingBudget] = useState(false)
+  const [budgetInput, setBudgetInput] = useState('')
+
+  function saveBudget() {
+    const n = Math.max(0, parseFloat(String(budgetInput).replace(',', '.')) || 0)
+    setBudget(n)
+    localStorage.setItem('budget', String(n))
+    setEditingBudget(false)
+  }
+
+  function exportCSV() {
+    const rows = [['Data', 'Tipo', 'Categoria', 'Descrizione', 'Importo']]
+    monthExpenses.forEach(e => rows.push([e.date, e.type, e.category, e.description || '', String(e.amount)]))
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `spese-${MONTHS[selectedMonth]}-${selectedYear}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+
   const monthExpenses = useMemo(() =>
     expenses.filter(e => {
       const d = new Date(e.date)
@@ -114,6 +141,57 @@ export default function Finance({ user, onNew, onEdit }) {
         <BalanceCard amount={Math.abs(saldo)} label="Saldo" color={saldo >= 0 ? '#4ade80' : '#f87171'} sign={saldo >= 0 ? '+' : '-'} />
       </div>
 
+      {/* Budget mensile */}
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1rem 1.125rem' }}>
+        {budget > 0 && !editingBudget ? (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.6rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{ fontSize: '0.85rem' }}>🎯</span>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.875rem', color: 'var(--text)' }}>Budget mensile</p>
+                <button onClick={() => { setBudgetInput(String(budget)); setEditingBudget(true) }} style={{ background: 'none', border: 'none', color: '#a78bfa', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600 }}>modifica</button>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: totaleSpese > budget ? '#ef4444' : 'rgba(var(--text-rgb),0.6)' }}>
+                €{totaleSpese.toFixed(0)} / €{budget.toFixed(0)}
+              </p>
+            </div>
+            <div style={{ background: 'rgba(var(--surface-rgb),0.08)', borderRadius: '999px', height: 8, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', width: `${Math.min(totaleSpese / budget * 100, 100)}%`,
+                background: totaleSpese >= budget ? 'linear-gradient(90deg, #ef4444, #f97316)'
+                  : totaleSpese >= budget * 0.8 ? 'linear-gradient(90deg, #f59e0b, #fb923c)'
+                  : 'linear-gradient(90deg, #10b981, #34d399)',
+                borderRadius: '999px', transition: 'width 0.4s ease',
+              }} />
+            </div>
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.74rem', color: totaleSpese > budget ? '#fca5a5' : 'rgba(var(--text-rgb),0.45)' }}>
+              {totaleSpese > budget
+                ? `⚠️ Superato di €${(totaleSpese - budget).toFixed(0)}`
+                : `Ti restano €${(budget - totaleSpese).toFixed(0)} questo mese`}
+            </p>
+          </>
+        ) : editingBudget ? (
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.85rem' }}>🎯</span>
+            <input
+              type="number" inputMode="decimal" value={budgetInput}
+              onChange={e => setBudgetInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && saveBudget()}
+              placeholder="Limite €" autoFocus style={{ flex: 1 }}
+            />
+            <button onClick={saveBudget} style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', border: 'none', borderRadius: '0.75rem', padding: '0.5rem 1rem', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>OK</button>
+          </div>
+        ) : (
+          <button onClick={() => { setBudgetInput(''); setEditingBudget(true) }} style={{
+            width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+            color: 'rgba(var(--text-rgb),0.5)', fontSize: '0.85rem', fontWeight: 500,
+          }}>
+            🎯 Imposta un budget mensile
+          </button>
+        )}
+      </div>
+
       {/* View toggle — 3 views */}
       <div style={{ display: 'flex', background: 'rgba(var(--surface-rgb),0.04)', border: '1px solid rgba(var(--surface-rgb),0.07)', borderRadius: '0.875rem', padding: '0.25rem', gap: '0.25rem' }}>
         {[
@@ -157,6 +235,16 @@ export default function Finance({ user, onNew, onEdit }) {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.1rem' }}>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.4)', fontWeight: 600 }}>
+                  {monthExpenses.length} voci
+                </p>
+                <button onClick={exportCSV} style={{
+                  background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '0.625rem',
+                  padding: '0.3rem 0.7rem', color: 'rgba(var(--text-rgb),0.6)', cursor: 'pointer',
+                  fontSize: '0.74rem', fontWeight: 600,
+                }}>⬇ Esporta CSV</button>
+              </div>
               {monthExpenses.map(e => <ExpenseCard key={e.id} expense={e} onClick={() => onEdit(e)} />)}
             </div>
           )}

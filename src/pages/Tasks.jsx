@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useCollection } from '../hooks/useCollection'
 import { format, parseISO, isPast, isToday, isTomorrow, isThisWeek } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -21,7 +21,7 @@ const PRIORITY_STYLE = {
 const FILTERS = ['Tutti', 'Oggi', 'Settimana', 'Scaduti', 'Completati']
 
 export default function Tasks({ user, onNew, onEdit }) {
-  const { items: tasks, update } = useCollection('tasks', user.uid)
+  const { items: tasks, update, remove } = useCollection('tasks', user.uid)
   const [filter, setFilter] = useState('Tutti')
   const [search, setSearch] = useState('')
 
@@ -106,7 +106,11 @@ export default function Tasks({ user, onNew, onEdit }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {filtered.map(t => (
-            <TaskCard key={t.id} task={t} onEdit={() => onEdit(t)} onToggle={() => toggleComplete(t)} />
+            <TaskCard key={t.id} task={t}
+              onEdit={() => onEdit(t)}
+              onToggle={() => toggleComplete(t)}
+              onDelete={() => { if (confirm(`Eliminare "${t.title}"?`)) remove(t.id) }}
+            />
           ))}
         </div>
       )}
@@ -114,13 +118,35 @@ export default function Tasks({ user, onNew, onEdit }) {
   )
 }
 
-function TaskCard({ task, onEdit, onToggle }) {
+function TaskCard({ task, onEdit, onToggle, onDelete }) {
   const deadline = task.deadline ? parseISO(task.deadline) : null
   const isOver = deadline && isPast(deadline) && !isToday(deadline) && !task.completed
   const isTod = deadline && isToday(deadline)
   const isTom = deadline && isTomorrow(deadline)
   const cat = CAT_COLORS[task.category] || CAT_COLORS.Altro
   const pri = PRIORITY_STYLE[task.priority] || PRIORITY_STYLE.media
+
+  const [dx, setDx] = useState(0)
+  const startRef = useRef(null)
+  const movedRef = useRef(false)
+
+  function onTouchStart(e) { startRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; movedRef.current = false }
+  function onTouchMove(e) {
+    if (!startRef.current) return
+    const ddx = e.touches[0].clientX - startRef.current.x
+    const ddy = e.touches[0].clientY - startRef.current.y
+    if (Math.abs(ddx) > Math.abs(ddy) && Math.abs(ddx) > 8) {
+      movedRef.current = true
+      setDx(Math.max(-110, Math.min(110, ddx)))
+    }
+  }
+  function onTouchEnd() {
+    const d = dx
+    setDx(0)
+    startRef.current = null
+    if (d > 75) onToggle()
+    else if (d < -75) onDelete()
+  }
 
   let dateText = deadline ? format(deadline, 'd MMM', { locale: it }) : ''
   let dateColor = 'rgba(var(--text-rgb),0.3)'
@@ -129,16 +155,30 @@ function TaskCard({ task, onEdit, onToggle }) {
   else if (isOver) { dateColor = '#f87171' }
 
   return (
-    <div style={{
-      background: 'rgba(var(--surface-rgb),0.03)',
-      border: `1px solid ${isOver ? 'rgba(248,113,113,0.25)' : 'rgba(var(--surface-rgb),0.07)'}`,
-      borderLeft: `3px solid ${isOver ? '#ef4444' : task.completed ? 'rgba(var(--surface-rgb),0.1)' : cat.border}`,
-      borderRadius: '1rem',
-      padding: '0.875rem 1rem',
-      display: 'flex', gap: '0.875rem', alignItems: 'flex-start',
-      opacity: task.completed ? 0.45 : 1,
-      transition: 'all 0.2s',
-    }}>
+    <div style={{ position: 'relative', borderRadius: '1rem', overflow: 'hidden' }}>
+      {/* Sfondo swipe: ✅ a sinistra, 🗑 a destra */}
+      <div style={{
+        position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 1.4rem', fontSize: '1.2rem',
+        background: dx > 0 ? 'rgba(16,185,129,0.25)' : dx < 0 ? 'rgba(239,68,68,0.25)' : 'transparent',
+      }}>
+        <span style={{ opacity: dx > 0 ? 1 : 0 }}>{task.completed ? '↩️' : '✅'}</span>
+        <span style={{ opacity: dx < 0 ? 1 : 0 }}>🗑</span>
+      </div>
+
+      <div
+        onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
+        style={{
+          background: 'var(--bg-elev)',
+          border: `1px solid ${isOver ? 'rgba(248,113,113,0.25)' : 'rgba(var(--surface-rgb),0.07)'}`,
+          borderLeft: `3px solid ${isOver ? '#ef4444' : task.completed ? 'rgba(var(--surface-rgb),0.1)' : cat.border}`,
+          borderRadius: '1rem',
+          padding: '0.875rem 1rem',
+          display: 'flex', gap: '0.875rem', alignItems: 'flex-start',
+          opacity: task.completed ? 0.45 : 1,
+          transform: `translateX(${dx}px)`,
+          transition: dx === 0 ? 'transform 0.2s, opacity 0.2s' : 'none',
+        }}>
       {/* Checkbox */}
       <button
         onClick={(e) => { e.stopPropagation(); onToggle() }}
@@ -158,7 +198,7 @@ function TaskCard({ task, onEdit, onToggle }) {
       </button>
 
       {/* Content */}
-      <div style={{ flex: 1, cursor: 'pointer', minWidth: 0 }} onClick={onEdit}>
+      <div style={{ flex: 1, cursor: 'pointer', minWidth: 0 }} onClick={() => { if (!movedRef.current) onEdit() }}>
         <p style={{
           margin: 0, fontWeight: 600, fontSize: '0.9rem',
           color: task.completed ? 'rgba(var(--text-rgb),0.4)' : 'var(--text)',
@@ -196,6 +236,7 @@ function TaskCard({ task, onEdit, onToggle }) {
             {task.notes}
           </p>
         )}
+      </div>
       </div>
     </div>
   )

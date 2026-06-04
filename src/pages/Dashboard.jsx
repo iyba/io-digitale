@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useCollection } from '../hooks/useCollection'
 import { useWeather, WMO, outdoorAlert } from '../hooks/useWeather'
-import { format, isToday, isPast, parseISO, differenceInCalendarDays } from 'date-fns'
+import { format, isToday, isPast, parseISO, differenceInCalendarDays, isThisWeek } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 const CAT_COLORS = {
@@ -44,6 +44,11 @@ export default function Dashboard({ user, onNewTask, onEditTask, onSignOut }) {
   }, [tasks])
 
   const pendingCount = tasks.filter(t => !t.completed && !t.isNote).length
+
+  const weekTasks = useMemo(() =>
+    tasks.filter(t => !t.isNote && t.deadline && isThisWeek(parseISO(t.deadline), { weekStartsOn: 1 })),
+    [tasks])
+  const weekDone = weekTasks.filter(t => t.completed).length
 
   const wCurrent = weather ? (WMO[weather.current.code] ?? WMO[0]) : null
   const alert = weather ? outdoorAlert(weather.current.code, weather.today.rainProb) : null
@@ -92,6 +97,32 @@ export default function Dashboard({ user, onNewTask, onEditTask, onSignOut }) {
           </div>
         )}
       </div>
+
+      {/* RIEPILOGO SETTIMANALE */}
+      {weekTasks.length > 0 && (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1rem 1.125rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <span style={{ fontSize: '0.85rem' }}>📊</span>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: '0.875rem', color: 'var(--text)' }}>Questa settimana</p>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: weekDone === weekTasks.length ? '#4ade80' : 'rgba(var(--text-rgb),0.6)' }}>
+              {weekDone}/{weekTasks.length} completati
+            </p>
+          </div>
+          <div style={{ background: 'rgba(var(--surface-rgb),0.08)', borderRadius: '999px', height: 8, overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', width: `${weekTasks.length ? (weekDone / weekTasks.length * 100) : 0}%`,
+              background: 'linear-gradient(90deg, #10b981, #34d399)', borderRadius: '999px', transition: 'width 0.4s ease',
+            }} />
+          </div>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.74rem', color: 'rgba(var(--text-rgb),0.45)' }}>
+            {weekDone === weekTasks.length
+              ? '🎉 Settimana completata, bravo!'
+              : `Ancora ${weekTasks.length - weekDone} da fare entro domenica`}
+          </p>
+        </div>
+      )}
 
       {/* OGGI — impegni giornalieri */}
       <SectionCard icon="🎯" title="Oggi" badge={focusTasks.length || null} action="+ Impegno" onAction={onNewTask}>
