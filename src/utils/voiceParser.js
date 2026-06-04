@@ -244,6 +244,21 @@ function cleanTitle(text) {
 export function parseVoiceAuto(rawText) {
   const lower = rawText.toLowerCase()
 
+  // Nota vocale: "nota comprare il latte", "segna che ...", "appunto ..."
+  const noteMatch = rawText.trim().match(/^(nota|note|appunto|appunti|annota|segna(?:ti)?)\b[\s:,.]*/i)
+  if (noteMatch) {
+    let text = rawText.trim().slice(noteMatch[0].length)
+    text = text.replace(/^(che|di|:)\s+/i, '').trim()
+    text = text.replace(/^[a-zà-ù]/, c => c.toUpperCase())
+    if (text) {
+      return {
+        kind: 'note',
+        data: { text },
+        summary: `📝 ${text.length > 45 ? text.slice(0, 45) + '…' : text}`,
+      }
+    }
+  }
+
   // Detect if expense
   const isExpense = EXPENSE_SIGNALS.some(s => lower.includes(s)) && /\d/.test(lower)
 

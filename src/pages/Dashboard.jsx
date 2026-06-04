@@ -43,7 +43,7 @@ export default function Dashboard({ user, onNewTask, onEditTask, onSignOut }) {
       .slice(0, 6)
   }, [tasks])
 
-  const pendingCount = tasks.filter(t => !t.completed).length
+  const pendingCount = tasks.filter(t => !t.completed && !t.isNote).length
 
   const wCurrent = weather ? (WMO[weather.current.code] ?? WMO[0]) : null
   const alert = weather ? outdoorAlert(weather.current.code, weather.today.rainProb) : null

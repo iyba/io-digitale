@@ -26,7 +26,7 @@ export default function Tasks({ user, onNew, onEdit }) {
   const [search, setSearch] = useState('')
 
   const filtered = useMemo(() => {
-    let list = tasks
+    let list = tasks.filter(t => !t.isNote)
     if (search) list = list.filter(t => t.title.toLowerCase().includes(search.toLowerCase()))
     switch (filter) {
       case 'Oggi': return list.filter(t => !t.completed && t.deadline && isToday(parseISO(t.deadline)))
@@ -41,7 +41,7 @@ export default function Tasks({ user, onNew, onEdit }) {
     await update(task.id, { completed: !task.completed, completedAt: !task.completed ? new Date() : null })
   }
 
-  const pendingCount = tasks.filter(t => !t.completed).length
+  const pendingCount = tasks.filter(t => !t.completed && !t.isNote).length
   const overdueCount = tasks.filter(t => !t.completed && t.deadline && isPast(parseISO(t.deadline)) && !isToday(parseISO(t.deadline))).length
 
   return (

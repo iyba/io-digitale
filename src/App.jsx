@@ -74,20 +74,26 @@ export default function App() {
   const handleVoiceResult = useCallback(async (rawText) => {
     const parsed = parseVoiceAuto(rawText)
 
-    if (isDemo) {
-      // In demo mode just open the form
-      if (parsed.kind === 'task') setTaskModal({ voice: rawText })
-      else setExpenseModal({ voice: rawText })
-      return
-    }
-
     if (!user) return
 
-    // Auto-save immediately
-    const colName = parsed.kind === 'task' ? 'tasks' : 'expenses'
-    // I campi di ricorrenza non vanno nel documento spesa: vengono estratti
-    const { recurring: isRec, dayOfMonth, ...docData } = parsed.data
     try {
+      // Nota vocale ("nota ...") → salvata come nota
+      if (parsed.kind === 'note') {
+        const ref = await addDoc(collection(db, 'tasks'), {
+          ...sanitizeData({ title: parsed.data.text }),
+          isNote: true, category: 'Nota', priority: 'bassa', completed: false,
+          userId: user.uid, createdAt: serverTimestamp(),
+        })
+        setLastSavedId(ref.id)
+        setLastSavedCol('tasks')
+        setVoiceParsed({ ...parsed, rawText })
+        return
+      }
+
+      // Auto-save immediato (task o spesa)
+      const colName = parsed.kind === 'task' ? 'tasks' : 'expenses'
+      // I campi di ricorrenza non vanno nel documento spesa: vengono estratti
+      const { recurring: isRec, dayOfMonth, ...docData } = parsed.data
       const ref = await addDoc(collection(db, colName), {
         ...sanitizeData(docData),
         userId: user.uid,
@@ -110,11 +116,11 @@ export default function App() {
       setLastSavedCol(colName)
       setVoiceParsed({ ...parsed, rawText })
     } catch (err) {
-      // If save fails, fall back to manual form
-      if (parsed.kind === 'task') setTaskModal({ voice: rawText })
-      else setExpenseModal({ voice: rawText })
+      // Se il salvataggio fallisce, apri il form manuale
+      if (parsed.kind === 'expense') setExpenseModal({ voice: rawText })
+      else setTaskModal({ voice: rawText })
     }
-  }, [user, isDemo])
+  }, [user])
 
   // Process ?voice= URL param once auth is ready (Action Button / iOS Shortcut flow)
   useEffect(() => {

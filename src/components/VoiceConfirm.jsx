@@ -35,6 +35,7 @@ export default function VoiceConfirm({ parsed, onEdit, onUndo, onDone }) {
   }
 
   const isExpense = parsed.kind === 'expense'
+  const isNote = parsed.kind === 'note'
   const d = parsed.data
 
   return (
@@ -74,7 +75,7 @@ export default function VoiceConfirm({ parsed, onEdit, onUndo, onDone }) {
             borderRadius: '999px', padding: '0.2rem 0.625rem',
             fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
           }}>
-            {isExpense ? (d.type === 'entrata' ? '💰 Entrata' : '💸 Spesa') : '📋 Impegno'}
+            {isNote ? '📝 Nota' : isExpense ? (d.type === 'entrata' ? '💰 Entrata' : '💸 Spesa') : '📋 Impegno'}
           </span>
           <span style={{ fontSize: '0.72rem', color: 'rgba(var(--text-rgb),0.4)', marginLeft: 'auto' }}>
             ✅ Salvato
@@ -82,7 +83,11 @@ export default function VoiceConfirm({ parsed, onEdit, onUndo, onDone }) {
         </div>
 
         {/* Content */}
-        {isExpense ? (
+        {isNote ? (
+          <p style={{ margin: 0, fontWeight: 600, fontSize: '0.95rem', color: 'var(--text)', lineHeight: 1.4 }}>
+            {d.text}
+          </p>
+        ) : isExpense ? (
           <div>
             <p style={{ margin: 0, fontWeight: 800, fontSize: '1.4rem', letterSpacing: '-0.03em', color: d.type === 'entrata' ? '#4ade80' : '#fb923c' }}>
               {d.type === 'entrata' ? '+' : '-'}€{d.amount?.toFixed(2)}
