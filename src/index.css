@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
 :root, [data-theme="dark"] {
-  --bg: #1b1b26;
-  --bg-rgb: 27, 27, 38;
-  --bg-elev: #262633;
+  --bg: #16161f;
+  --bg-rgb: 22, 22, 31;
+  --bg-elev: #23232f;
   --text: #f3f3f8;
   --text-rgb: 243, 243, 248;
   --surface-rgb: 255, 255, 255;
+  --surface: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.09);
   --input-bg: rgba(255,255,255,0.07);
+  --aurora-1: rgba(124, 58, 237, 0.22);
+  --aurora-2: rgba(56, 70, 190, 0.18);
+  --aurora-3: rgba(217, 70, 160, 0.10);
 }
 
 [data-theme="light"] {
@@ -17,7 +22,12 @@
   --text: #16162b;
   --text-rgb: 22, 22, 43;
   --surface-rgb: 30, 35, 70;
+  --surface: rgba(255, 255, 255, 0.82);
+  --border: rgba(30, 35, 70, 0.1);
   --input-bg: rgba(20,20,43,0.05);
+  --aurora-1: rgba(124, 58, 237, 0.13);
+  --aurora-2: rgba(79, 110, 240, 0.11);
+  --aurora-3: rgba(236, 110, 180, 0.08);
 }
 
 @layer base {
@@ -28,11 +38,16 @@
 
   body {
     margin: 0;
-    background: var(--bg);
+    background:
+      radial-gradient(900px 520px at 88% -8%, var(--aurora-1), transparent 60%),
+      radial-gradient(820px 500px at -12% 6%, var(--aurora-2), transparent 56%),
+      radial-gradient(700px 600px at 50% 110%, var(--aurora-3), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
-    transition: background 0.25s ease;
+    transition: background-color 0.25s ease;
   }
 
   #root {
@@ -80,4 +95,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .page-enter { animation: none; }
+}
+
+/* Feedback tattile: i pulsanti si "premono" al tocco */
+button { transition: transform 0.1s ease, filter 0.1s ease; }
+button:active { transform: scale(0.97); filter: brightness(1.05); }
+
+@media (prefers-reduced-motion: reduce) {
+  button:active { transform: none; }
 }
