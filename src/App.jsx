@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { auth, db } from './firebase'
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth'
 import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore'
 import Dashboard from './pages/Dashboard'
 import Impegni from './pages/Impegni'
-import Finance from './pages/Finance'
 import Settings from './pages/Settings'
 import Navbar from './components/Navbar'
 import VoiceButton from './components/VoiceButton'
@@ -17,7 +16,16 @@ import { generateRecurringInstances } from './utils/recurringManager'
 import { savePushTokenIfGranted } from './hooks/usePushNotifications'
 import { sanitizeData } from './utils/sanitize'
 
-const DEMO_USER = { uid: 'demo', displayName: 'Andriy', photoURL: null }
+// Finanze usa Recharts (~360KB): caricata solo quando serve
+const Finance = lazy(() => import('./pages/Finance'))
+
+function PageSpinner() {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+      <div style={{ width: 32, height: 32, border: '3px solid rgba(124,58,237,0.15)', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+    </div>
+  )
+}
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -25,7 +33,6 @@ export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [taskModal, setTaskModal] = useState(null)
   const [expenseModal, setExpenseModal] = useState(null)
-  const [isDemo] = useState(false)
   const [authError, setAuthError] = useState(null)
   const [email, setEmail] = useState('andriy99.an@gmail.com')
   const [password, setPassword] = useState('')
@@ -124,14 +131,14 @@ export default function App() {
 
   // Process ?voice= URL param once auth is ready (Action Button / iOS Shortcut flow)
   useEffect(() => {
-    if (!loading && user && !isDemo && pendingVoice) {
+    if (!loading && user && pendingVoice) {
       handleVoiceResult(pendingVoice)
       setPendingVoice(null)
     }
-  }, [loading, user, isDemo, pendingVoice, handleVoiceResult])
+  }, [loading, user, pendingVoice, handleVoiceResult])
 
   async function handleVoiceUndo() {
-    if (lastSavedId && lastSavedCol && !isDemo) {
+    if (lastSavedId && lastSavedCol) {
       await deleteDoc(doc(db, lastSavedCol, lastSavedId))
     }
     setVoiceParsed(null)
@@ -225,40 +232,36 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', height: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
-      {isDemo && (
-        <div style={{ background: 'rgba(99,102,241,0.12)', borderBottom: '1px solid rgba(99,102,241,0.25)', padding: '0.5rem 1rem', textAlign: 'center', fontSize: '0.78rem', color: '#a5b4fc' }}>
-          🎭 Modalità demo — la voce apre i form, i dati non vengono salvati
-          <button onClick={exitDemo} style={{ marginLeft: '0.75rem', background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600 }}>Esci</button>
-        </div>
-      )}
-
-
       <main style={{ flex: 1, minHeight: 0, padding: '1rem', paddingTop: 'calc(1rem + env(safe-area-inset-top))', paddingBottom: '1.5rem', overflowY: 'auto' }}>
-        {tab === 'dashboard' && (
-          <Dashboard user={user} isDemo={isDemo}
-            onNewTask={() => setTaskModal('new')}
-            onNewExpense={() => setExpenseModal('new')}
-            onEditTask={t => setTaskModal(t)}
-            onEditExpense={e => setExpenseModal(e)}
-            onSignOut={() => isDemo ? exitDemo() : signOut(auth)}
-          />
-        )}
-        {tab === 'tasks' && (
-          <Impegni user={user}
-            onNew={() => setTaskModal('new')}
-            onEdit={t => setTaskModal(t)}
-            onNewOnDate={(date) => setTaskModal(date ? { prefillDate: date } : 'new')}
-          />
-        )}
-        {tab === 'finance' && (
-          <Finance user={user} isDemo={isDemo}
-            onNew={() => setExpenseModal('new')}
-            onEdit={e => setExpenseModal(e)}
-          />
-        )}
-        {tab === 'settings' && (
-          <Settings user={user} />
-        )}
+        <div className="page-enter" key={tab}>
+          {tab === 'dashboard' && (
+            <Dashboard user={user}
+              onNewTask={() => setTaskModal('new')}
+              onNewExpense={() => setExpenseModal('new')}
+              onEditTask={t => setTaskModal(t)}
+              onEditExpense={e => setExpenseModal(e)}
+              onSignOut={() => signOut(auth)}
+            />
+          )}
+          {tab === 'tasks' && (
+            <Impegni user={user}
+              onNew={() => setTaskModal('new')}
+              onEdit={t => setTaskModal(t)}
+              onNewOnDate={(date) => setTaskModal(date ? { prefillDate: date } : 'new')}
+            />
+          )}
+          {tab === 'finance' && (
+            <Suspense fallback={<PageSpinner />}>
+              <Finance user={user}
+                onNew={() => setExpenseModal('new')}
+                onEdit={e => setExpenseModal(e)}
+              />
+            </Suspense>
+          )}
+          {tab === 'settings' && (
+            <Settings user={user} />
+          )}
+        </div>
       </main>
 
       <Navbar tab={tab} setTab={setTab} />
@@ -275,10 +278,7 @@ export default function App() {
         />
       )}
 
-      {taskModal !== null && !isDemo && (
-        <AddTaskModal user={user} initial={taskModal} onClose={() => setTaskModal(null)} />
-      )}
-      {taskModal !== null && isDemo && (
+      {taskModal !== null && (
         <AddTaskModal user={user} initial={taskModal} onClose={() => setTaskModal(null)} />
       )}
       {expenseModal !== null && (
